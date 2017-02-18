@@ -1,0 +1,59 @@
+body {
+    font-family: "tee_franklin_light", 'Source Sans Pro', "Helvetica Neue", Helvetica, "Open Sans", Arial, sans-serif;
+    font-weight: 300;
+}
+
+path.slice {
+    stroke-width: 2px;
+}
+
+polyline {
+    opacity: .3;
+    stroke: black;
+    stroke-width: 2px;
+    fill: none;
+}
+
+.page-break {
+    clear: both;
+    page-break-after: always;
+}
+
+#front-page {
+    display: flex;
+    flex-direction: row;
+}
+
+#overall_evaluation {
+    float: left;
+    width: 45%;
+}
+
+#highlow {
+    padding-left: 10px;
+    border-left: 1px #222 solid;
+    float: right;
+    width: 45%;
+}
+
+.highlights td {
+    color: hsla(90, 50%, 50%, 1);
+}
+
+.lowlights td {
+    color: hsla(0, 60%, 50%, 1);
+}
+
+table {
+    width: 100%;
+}
+
+td {
+    text-align: center;
+}
+
+th:first-child, td:first-child {
+    width: 50%;
+    max-width: 50%;
+    text-align: left;
+}

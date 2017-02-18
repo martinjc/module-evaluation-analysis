@@ -1,0 +1,21 @@
+{
+  "name": "module-evaluation-analysis",
+  "version": "1.0.0",
+  "description": "Analysing Module Evaluation",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martinjc/module-evaluation-analysis.git"
+  },
+  "author": "Martin Chorley",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/martinjc/module-evaluation-analysis/issues"
+  },
+  "homepage": "https://github.com/martinjc/module-evaluation-analysis#readme",
+  "dependencies": {
+    "nightmare": "^2.9.1"
+  }
+}
