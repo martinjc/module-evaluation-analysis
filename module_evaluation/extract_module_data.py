@@ -1,7 +1,7 @@
 import os
 import pandas
 
-from analysis import MODULE_COLUMNS, LIKERT
+from module_evaluation.analysis import MODULE_COLUMNS, LIKERT
 
 """
 
@@ -40,9 +40,9 @@ def combine_module_evaluation_data(dataframes):
     return all_module_data
 
 
-def convert_to_likert_and_combine(module_data):
+def convert_to_likert_and_reduce(module_data):
     # don't need 'Module' column
-    if module_data.get('Module'):
+    if 'Module' in module_data.columns:
         del module_data['Module']
 
     module_data_counts = module_data.apply(lambda x: x.value_counts(normalize=True))
@@ -85,24 +85,3 @@ def generate_module_mean_comparison(all_module_data):
         module_comparison[module] = module_data.mean()
 
     return module_comparison
-
-
-def generate_module_percentage_scores(all_module_data):
-
-    module_comparison = pandas.DataFrame(index=[m for m in MODULE_COLUMNS if m != 'Module'])
-    data_by_module = all_module_data.groupby('Module')
-
-    all_module_data_counts = convert_to_likert_and_combine(all_module_data)
-    all_module_data_counts_T = transpose_and_name_index(all_module_data_counts, 'question')
-    module_comparison['AllModules'] = all_module_data_counts_T.ix['Agree']
-
-    for module in data_by_module.groups:
-
-            module_agreement_comparison = pandas.DataFrame(index=[m for m in MODULE_COLUMNS if m != 'Module'])
-
-            module_data = data_by_module.get_group(module).dropna(axis=1, how='all')
-
-            module_data_counts = convert_to_likert_and_combine(module_data)
-            module_data_counts_T = transpose_and_name_index(module_data_counts, 'question')
-
-            module_agreement_comparison[module] = module_data_T.ix['Agree']
