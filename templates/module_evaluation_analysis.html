@@ -9,12 +9,14 @@
 </head>
 <body>
     <div id="evaluation_data" style="display:none;">
-<div id="data_average">{{data_average}}</div>
-<div id="data_module">{{data_module}}</div>
-<div id="data_agreement_comparison">{{data_agreement_comparison}}</div>
+<div id="data_average">{{data.all_module_percent_scores}}</div>
+<div id="data_module">{{data.percent_scores}}</div>
+<div id="data_agreement_comparison">{{data.percent_agreement_comparison}}</div>
+<div id="data_highlights">{{data.highlights}}</div>
+<div id="data_lowlights">{{data.lowlights}}</div>
     </div>
     <section id="front_page">
-        <h1>{{module_code}} (n={{evaluation_size}})</h1>
+        <h1>{{module}} (n={{count}})</h1>
         <div id="overall_evaluation">
             <h2>Overall Evaluation</h2>
             <p>Overall, I am satisfied with the quality of this module.</p>

@@ -82,15 +82,15 @@
 
     module_data.forEach(function(d){
         d.module = +d.module;
-        d.AllModuleAverage = +d.AllModuleAverage;
-        d.diff = d.module - d.AllModuleAverage;
+        d.AllModules = +d.AllModules;
+        d.diff = d.module - d.AllModules;
     })
 
     var questions = module_data.map(function(d) { return d.question; });
 
     yScale.domain(questions);
     xScale.domain([d3.min(module_data, function(d){
-        return d.module < d.AllModuleAverage ? d.module : d.AllModuleAverage;
+        return d.module < d.AllModules ? d.module : d.AllModules;
     }), 1.05]);
     colourScale.domain([d3.min(module_data, function(d){
         return d.diff;
@@ -131,7 +131,7 @@
         .attr('d', function(d){
             var height = yScale(d.question)+yScale.bandwidth()/2;
             var end_point = [xScale(d.module), height];
-            var start_point = [xScale(d.AllModuleAverage), height];
+            var start_point = [xScale(d.AllModules), height];
             var main_line = "M" + end_point[0] + "," + end_point[1] + " L" + start_point[0] + "," + start_point[1];
             if(d.diff > 0) {
                 //arrow points right
@@ -185,7 +185,7 @@
         .append('g')
         .attr('class', 'average')
         .attr('transform', function(d){
-            return 'translate(' + xScale(d.AllModuleAverage) + ',' + (yScale(d.question)+yScale.bandwidth()/2) + ')';
+            return 'translate(' + xScale(d.AllModules) + ',' + (yScale(d.question)+yScale.bandwidth()/2) + ')';
         })
         .append('path')
         .attr('d', diamond())
@@ -218,7 +218,7 @@
     labels
         .append('text')
         .attr('x', function(d){
-            return xScale(d.AllModuleAverage);
+            return xScale(d.AllModules);
         })
         .attr('y', function(d){
             return yScale(d.question)+yScale.bandwidth()/2;
@@ -239,7 +239,7 @@
         })
         .attr('dy', '0.25em')
         .text(function(d){
-            return pformat(d.AllModuleAverage);
+            return pformat(d.AllModules);
         });
 
     labels
