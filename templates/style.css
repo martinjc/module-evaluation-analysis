@@ -36,14 +36,6 @@ polyline {
     width: 45%;
 }
 
-.highlights td {
-    color: hsla(90, 50%, 50%, 1);
-}
-
-.lowlights td {
-    color: hsla(0, 60%, 50%, 1);
-}
-
 table {
     width: 100%;
 }

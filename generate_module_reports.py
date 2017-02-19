@@ -12,10 +12,11 @@ from module_evaluation.extract_module_data import *
 
 TEMPLATE_PATH = os.path.join(os.getcwd(), 'templates')
 TEMPLATE_ENVIRONMENT = Environment(autoescape=False, loader=FileSystemLoader(TEMPLATE_PATH), trim_blocks=False)
-TEMPLATE_FILES = ['style.css', 'module_against_average.js', 'module_comparison.js', 'overall_pie.js']
+TEMPLATE_FILES = ['style.css', 'module_against_average.js', 'module_comparison.js', 'overall_pie.js', 'highlowlights.js']
 
 INPUT_DIR = os.path.join(os.getcwd(), 'input')
-OUTPUT_DIR = os.path.join(os.getcwd(), 'output')
+CSV_OUTPUT_DIR = os.path.join(os.getcwd(), 'output', 'modules', 'csv')
+PDF_OUTPUT_DIR = os.path.join(os.getcwd(), 'output', 'modules', 'pdf')
 BUILD_DIR = os.path.join(os.getcwd(), 'build')
 
 def render_template(template_filename, context):
@@ -28,6 +29,15 @@ def read_input_dataframes():
 
 def generate_module_data():
 
+    if not os.path.exists(CSV_OUTPUT_DIR):
+        os.makedirs(CSV_OUTPUT_DIR)
+
+    if not os.path.exists(PDF_OUTPUT_DIR):
+        os.makedirs(PDF_OUTPUT_DIR)
+
+    if not os.path.exists(BUILD_DIR):
+        os.makedirs(BUILD_DIR)
+
     context = {}
     context['data'] = {}
 
@@ -39,14 +49,14 @@ def generate_module_data():
     all_module_data_counts = convert_to_likert_and_reduce(all_module_data)
     all_module_data_counts_T = all_module_data_counts.T
     all_module_data_counts_T.index.name = "question"
-    with open(os.path.join(OUTPUT_DIR, 'all_module_percent_scores.csv'), 'w') as output_file:
+    with open(os.path.join(CSV_OUTPUT_DIR, 'all_module_percent_scores.csv'), 'w') as output_file:
         all_module_data_counts_T.to_csv(output_file)
     context['data']['all_module_percent_scores'] = all_module_data_counts_T.to_csv()
 
     print('Calculating number of responses per module')
     all_module_data = combine_module_evaluation_data(dataframes)
     module_counts = get_module_count(all_module_data)
-    with open(os.path.join(OUTPUT_DIR, 'all_module_counts.csv'), 'w') as output_file:
+    with open(os.path.join(CSV_OUTPUT_DIR, 'all_module_counts.csv'), 'w') as output_file:
         module_counts.to_csv(output_file)
 
     all_module_data = combine_module_evaluation_data(dataframes)
@@ -72,7 +82,7 @@ def generate_module_data():
             module_agreement_comparison['AllModules'] = module_comparison['AllModules']
             module_agreement_comparison.index.name = "question"
 
-            with open(os.path.join(OUTPUT_DIR, '%s_percent_agreement_comparison.csv' % (module.replace('/', '-'))), 'w') as output_file:
+            with open(os.path.join(CSV_OUTPUT_DIR, '%s_percent_agreement_comparison.csv' % (module.replace('/', '-'))), 'w') as output_file:
                 module_agreement_comparison.to_csv(output_file)
             context['data']['percent_agreement_comparison'] = module_agreement_comparison.to_csv()
 
@@ -82,7 +92,7 @@ def generate_module_data():
             lowlights = module_data_counts_T.nsmallest(3, 'Agree')[0:3]
             context['data']['lowlights'] = lowlights.to_csv()
 
-            with open(os.path.join(OUTPUT_DIR, '%s_percent_scores.csv' % (module.replace('/', '-'))), 'w') as output_file:
+            with open(os.path.join(CSV_OUTPUT_DIR, '%s_percent_scores.csv' % (module.replace('/', '-'))), 'w') as output_file:
                 module_data_counts_T.to_csv(output_file)
             context['data']['percent_scores'] = module_data_counts_T.to_csv()
 
@@ -96,7 +106,7 @@ def generate_module_data():
 
     print('Writing module comparison data')
     module_comparison.index.name = 'question'
-    with open(os.path.join(OUTPUT_DIR, 'all_module_percent_agreement_comparison.csv'), 'w') as output_file:
+    with open(os.path.join(CSV_OUTPUT_DIR, 'all_module_percent_agreement_comparison.csv'), 'w') as output_file:
         module_comparison.to_csv(output_file)
 
     print('Copying template files')
@@ -108,7 +118,7 @@ def generate_module_data():
     for module in tqdm(module_templates):
         mcode = module[:module.find('_report.html')]
         template_file = "file://%s" % os.path.join(BUILD_DIR, module)
-        output_file = "output/%s_report.pdf" % mcode
+        output_file = os.path.join("output", "modules", "pdf", "%s_report.pdf" % mcode)
         args = ['node', 'utils/generate_pdf.js', template_file, output_file]
         subprocess.call(args)
 
