@@ -25,8 +25,8 @@
         return b.module - a.module;
     })
 
-    var lowlights = module_data.slice(0, 3);
-    var highlights = module_data.slice(module_data.length-3, module_data.length);
+    var lowlights = module_data.slice(module_data.length-3, module_data.length);
+    var highlights = module_data.slice(0, 3);
 
     highlights_table.selectAll('tr')
         .data(highlights)
