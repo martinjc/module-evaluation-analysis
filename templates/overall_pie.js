@@ -1,13 +1,13 @@
 (function(){
 
     var width = 600;
-    var height = 500;
+    var height = 400;
 
     var margin = {
         top: 20,
         bottom: 20,
         left: 100,
-        right: 250,
+        right: 200,
     };
 
     var pformat = d3.format('.1%');
@@ -107,6 +107,61 @@
         });
     }
 
+    function getTransformation(transform) {
+      var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+      g.setAttributeNS(null, "transform", transform);
+      var matrix = g.transform.baseVal.consolidate().matrix;
+
+      // Below calculations are taken and adapted from the private function
+      // transform/decompose.js of D3's module d3-interpolate.
+      var {a, b, c, d, e, f} = matrix;
+      var scaleX, scaleY, skewX;
+      if (scaleX = Math.sqrt(a * a + b * b)) a /= scaleX, b /= scaleX;
+      if (skewX = a * c + b * d) c -= a * skewX, d -= b * skewX;
+      if (scaleY = Math.sqrt(c * c + d * d)) c /= scaleY, d /= scaleY, skewX /= scaleY;
+      if (a * d < b * c) a = -a, b = -b, skewX = -skewX, scaleX = -scaleX;
+      return {
+        translateX: e,
+        translateY: f,
+        rotate: Math.atan2(b, a) * Math.PI/180,
+        skewX: Math.atan(skewX) * Math.PI/180,
+        scaleX: scaleX,
+        scaleY: scaleY
+      };
+    }
+
+    function arrangeLabels() {
+        var move = 1;
+        while (move > 0) {
+            move = 0;
+            svg.selectAll(".label")
+                .each(function() {
+                    var that = this;
+                    var a = this.getBoundingClientRect();
+                    svg.selectAll(".label")
+                        .each(function() {
+                            if (this != that) {
+                                var b = this.getBoundingClientRect();
+                                if ((Math.abs(a.left - b.left) * 2 < (a.width + b.width)) && (Math.abs(a.top - b.top) * 2 < (a.height + b.height))) {
+                                    var dx = (Math.max(0, a.right - b.left) + Math.min(0, a.left - b.right)) * 0.01;
+                                    var dy = (Math.max(0, a.bottom - b.top) + Math.min(0, a.top - b.bottom)) * 0.02;
+                                    var tt = getTransformation(d3.select(this).attr("transform"));
+                                    var to = getTransformation(d3.select(that).attr("transform"));
+                                    move += Math.abs(dx) + Math.abs(dy);
+
+                                    to.translate = [to.translateX + dx, to.translateY + dy];
+                                    tt.translate = [tt.translateX - dx, tt.translateY - dy];
+                                    d3.select(this).attr("transform", "translate(" + tt.translate + ")");
+                                    d3.select(that).attr("transform", "translate(" + to.translate + ")");
+                                    a = this.getBoundingClientRect();
+                                }
+                            }
+                        });
+                });
+        }
+    }
+
     var pie = d3.pie()
         .sort(null)
         .value(function(d) { return d.value; });
@@ -136,6 +191,10 @@
     text
         .enter()
           .append("text")
+          .attr('class', 'label')
+          .attr('id', function(d, i){
+              return 'l-' + i;
+          })
           .attr("transform", function(d) {
               var pos = labelArc.centroid(d);
               pos[0] = radius * (midAngle(d) < Math.PI ? 1 : -1);
@@ -148,7 +207,9 @@
           .attr("dx", ".35em")
           .attr("fill", "#111")
           .text(function(d) { return d.data.key + " (" + pformat(d.data.value) + ")"; })
-          .call(wrap, margin.right);
+          .call(wrap, margin.right-50);
+
+    arrangeLabels();
 
     var polyline = svg.select(".lines")
                 .selectAll("polyline")
@@ -156,9 +217,14 @@
 
     polyline.enter()
         .append("polyline")
-        .attr("points", function(d){
+        .attr("points", function(d, i){
+            var label = d3.select('#l-' + i);
+            var transform = getTransformation(label.attr("transform"));
             var pos = labelArc.centroid(d);
-            pos[0] = radius * 0.95 * (midAngle(d) < Math.PI ? 1 : -1);
-            return [arc.centroid(d), labelArc.centroid(d), pos];
+            pos[0] = transform.translateX;
+            pos[1] = transform.translateY;
+            var mid = labelArc.centroid(d);
+            mid[1] = transform.translateY;
+            return [arc.centroid(d), mid, pos];
         });
 })();

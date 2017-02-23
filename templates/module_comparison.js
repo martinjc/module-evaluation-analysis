@@ -6,7 +6,7 @@
         top: 40,
         bottom: 20,
         left: 0,
-        right: 350,
+        right: 400,
     };
 
     var pformat = d3.format('.1%');
@@ -253,6 +253,7 @@
         svg.select('.y.axis')
             .call(yAxis)
             .selectAll(".tick text")
+            .attr('font-size', '12px')
             .call(wrap, margin.right);
 
 })();

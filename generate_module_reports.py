@@ -27,7 +27,7 @@ def read_input_dataframes():
     dataframes = [pandas.read_excel(os.path.join(INPUT_DIR, f)) for f in input_files]
     return dataframes
 
-def generate_module_data():
+def generate_module_data(pdfs=False):
 
     if not os.path.exists(CSV_OUTPUT_DIR):
         os.makedirs(CSV_OUTPUT_DIR)
@@ -113,15 +113,16 @@ def generate_module_data():
     for f in tqdm(TEMPLATE_FILES):
         shutil.copy(os.path.join(TEMPLATE_PATH, f), BUILD_DIR)
 
-    print('Creating PDF reports')
-    module_templates = [f for f in os.listdir(BUILD_DIR) if f.endswith('html')]
-    for module in tqdm(module_templates):
-        mcode = module[:module.find('_report.html')]
-        template_file = "file://%s" % os.path.join(BUILD_DIR, module)
-        output_file = os.path.join("output", "modules", "pdf", "%s_report.pdf" % mcode)
-        args = ['node', 'utils/generate_pdf.js', template_file, output_file]
-        subprocess.call(args)
+    if pdfs:
+        print('Creating PDF reports')
+        module_templates = [f for f in os.listdir(BUILD_DIR) if f.endswith('html')]
+        for module in tqdm(module_templates):
+            mcode = module[:module.find('_report.html')]
+            template_file = "file://%s" % os.path.join(BUILD_DIR, module)
+            output_file = os.path.join("output", "modules", "pdf", "%s_report.pdf" % mcode)
+            args = ['node', 'utils/generate_pdf.js', template_file, output_file]
+            subprocess.call(args)
 
 
 if __name__ == '__main__':
-    generate_module_data()
+    generate_module_data(True)

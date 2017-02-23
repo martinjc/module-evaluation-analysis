@@ -1,6 +1,8 @@
 body {
     font-family: "tee_franklin_light", 'Source Sans Pro', "Helvetica Neue", Helvetica, "Open Sans", Arial, sans-serif;
     font-weight: 300;
+    margin-left: 50px;
+    margin-right: 50px;
 }
 
 path.slice {

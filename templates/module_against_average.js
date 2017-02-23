@@ -6,7 +6,7 @@
         top: 40,
         bottom: 20,
         left: 60,
-        right: 350,
+        right: 400,
     };
 
     var pformat = d3.format('.1%');
@@ -130,18 +130,18 @@
         .append('path')
         .attr('d', function(d){
             var height = yScale(d.question)+yScale.bandwidth()/2;
-            var end_point = [xScale(d.module), height];
+            var end_point = [d.diff > 0 ? xScale(d.module)-5: xScale(d.module)+5, height];
             var start_point = [xScale(d.AllModules), height];
             var main_line = "M" + end_point[0] + "," + end_point[1] + " L" + start_point[0] + "," + start_point[1];
             if(d.diff > 0) {
                 //arrow points right
-                var arrowX = end_point[0] - 20;
+                var arrowX = end_point[0] - 10;
             } else {
                 //arrow points left
-                var arrowX = end_point[0] + 20;
+                var arrowX = end_point[0] + 10;
             }
-            var upper = "M" + end_point[0] + "," + end_point[1] + " L" + arrowX + "," + (height-10);
-            var lower = "M" + end_point[0] + "," + end_point[1] + " L" + arrowX + "," + (height+10);
+            var upper = "M" + end_point[0] + "," + end_point[1] + " L" + arrowX + "," + (height-5);
+            var lower = "M" + end_point[0] + "," + end_point[1] + " L" + arrowX + "," + (height+5);
             return main_line + " " + upper + " " + lower;
         })
         .attr('stroke', 'black')
@@ -275,6 +275,7 @@
         svg.select('.y.axis')
             .call(yAxis)
             .selectAll(".tick text")
+            .attr('font-size', '12px')
             .call(wrap, margin.right);
 
 })();
