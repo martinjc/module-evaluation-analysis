@@ -8,6 +8,7 @@ from weasyprint import HTML
 from jinja2 import Environment, FileSystemLoader
 
 from module_evaluation.analysis import *
+from module_evaluation.data_transform import *
 from module_evaluation.extract_module_data import *
 
 TEMPLATE_PATH = os.path.join(os.getcwd(), 'templates')
@@ -22,10 +23,6 @@ BUILD_DIR = os.path.join(os.getcwd(), 'build')
 def render_template(template_filename, context):
     return TEMPLATE_ENVIRONMENT.get_template(template_filename).render(context)
 
-def read_input_dataframes():
-    input_files = [f for f in os.listdir(INPUT_DIR) if f.endswith('.xlsx')]
-    dataframes = [pandas.read_excel(os.path.join(INPUT_DIR, f)) for f in input_files]
-    return dataframes
 
 def generate_module_data(pdfs=False):
 
@@ -42,7 +39,7 @@ def generate_module_data(pdfs=False):
     context['data'] = {}
 
     print('Reading input')
-    dataframes = read_input_dataframes()
+    dataframes = read_input_dataframes(INPUT_DIR)
 
     print('Calculating scores over all modules')
     all_module_data = combine_module_evaluation_data(dataframes)
@@ -65,7 +62,7 @@ def generate_module_data(pdfs=False):
 
     module_comparison['AllModules'] = all_module_data_counts.ix['Agree']
 
-    print('Calculating and writing per module data and writing report templates')
+    print('Calculating and writing per module data report templates')
     for module in tqdm(data_by_module.groups):
 
             context['module'] = module
@@ -98,7 +95,7 @@ def generate_module_data(pdfs=False):
 
             module_comparison[module] = module_data_counts.ix['Agree']
 
-            fpath = os.path.join(BUILD_DIR, '%s_report.html' % (module.replace('/', '-')))
+            fpath = os.path.join(BUILD_DIR, '%s_report_module.html' % (module.replace('/', '-')))
 
             with open(fpath, 'w') as f:
                 html = render_template('module_evaluation_analysis.html', context)
@@ -115,7 +112,7 @@ def generate_module_data(pdfs=False):
 
     if pdfs:
         print('Creating PDF reports')
-        module_templates = [f for f in os.listdir(BUILD_DIR) if f.endswith('html')]
+        module_templates = [f for f in os.listdir(BUILD_DIR) if f.endswith('_module.html')]
         for module in tqdm(module_templates):
             mcode = module[:module.find('_report.html')]
             template_file = "file://%s" % os.path.join(BUILD_DIR, module)
