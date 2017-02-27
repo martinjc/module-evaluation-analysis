@@ -10,9 +10,6 @@
 <body>
     <div id="evaluation_data" style="display:none;">
 <div id="data_average">{{data.all_lecturer_percent_scores}}</div>
-{% for module in data.modules %}
-<div id="data_{{module.code}}">{{module.data}}</div>
-{% endfor %}
 <div id="data_agreement_overall">{{data.agreement_overall}}</div>
     </div>
     <section id="front_page">
@@ -34,18 +31,6 @@
         <div id="comparison"></div>
     </section>
 
-    {% if data.modules|length > 1%}
-        {% for module in data.modules %}
-            <div class="page-break"></div>
-            <section id="pies_{{module.code}}">
-                <h2>{{module.code}} (n={{module.count}})</h2>
-                <div class="pie" id="pie_vis1"></div>
-                <div class="pie" id="pie_vis2"></div>
-                <div class="pie" id="pie_vis3"></div>
-            </section>
-        {% endfor %}
-    {% endif %}
-
     <div class="page-break"></div>
     <section id="attribution">
         <footer>
@@ -58,15 +43,7 @@
             </p>
         </footer>
     </section>
-    <script>
-    var module_data_list = [];
-    {% for module in data.modules %}
-        module_data_list.push("{{module.code}}");
-    {% endfor %}
-    console.log(module_data_list);
-    </script>
     <script src="lecturer_pie.js"></script>
     <script src="lecturer_against_average.js"></script>
-    <script src="lecturer_comparison.js"></script>
 </body>
 </html>

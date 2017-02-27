@@ -13,7 +13,7 @@ from module_evaluation.extract_lecturer_data import *
 
 TEMPLATE_PATH = os.path.join(os.getcwd(), 'templates')
 TEMPLATE_ENVIRONMENT = Environment(autoescape=False, loader=FileSystemLoader(TEMPLATE_PATH), trim_blocks=False)
-TEMPLATE_FILES = ['lecturer_style.css', 'lecturer_pie.js', 'lecturer_against_average.js', 'lecturer_comparison.js']
+TEMPLATE_FILES = ['lecturer_style.css', 'lecturer_pie.js', 'lecturer_against_average.js']
 
 INPUT_DIR = os.path.join(os.getcwd(), 'input')
 CSV_OUTPUT_DIR = os.path.join(os.getcwd(), 'output', 'lecturers', 'csv')
@@ -83,8 +83,6 @@ def generate_lecturer_data(pdfs=False):
             with open(os.path.join(CSV_OUTPUT_DIR, '%s_%s_percent_agreement_data.csv' % (lecturer, module.replace('/', '-'))), 'w') as output_file:
                 mld_counts_T.to_csv(output_file)
 
-            context['data']['modules'].append({'code': module.replace('/', '-'), 'data': mld_counts_T.to_csv(), 'count': len(mld.index)})
-
             lecturer_comparison_by_module['%s: %s' % (lecturer, module)] = mld_counts.ix['Agree']
             module_count['%s: %s' % (lecturer, module)] =  len(mld.index)
 
@@ -141,4 +139,4 @@ def generate_lecturer_data(pdfs=False):
 
 
 if __name__ == '__main__':
-    generate_lecturer_data()
+    generate_lecturer_data(True)
