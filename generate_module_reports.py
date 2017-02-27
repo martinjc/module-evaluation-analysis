@@ -13,7 +13,7 @@ from module_evaluation.extract_module_data import *
 
 TEMPLATE_PATH = os.path.join(os.getcwd(), 'templates')
 TEMPLATE_ENVIRONMENT = Environment(autoescape=False, loader=FileSystemLoader(TEMPLATE_PATH), trim_blocks=False)
-TEMPLATE_FILES = ['style.css', 'module_against_average.js', 'module_comparison.js', 'overall_pie.js', 'highlowlights.js']
+TEMPLATE_FILES = ['module_style.css', 'module_against_average.js', 'module_comparison.js', 'module_pie.js', 'highlowlights.js']
 
 INPUT_DIR = os.path.join(os.getcwd(), 'input')
 CSV_OUTPUT_DIR = os.path.join(os.getcwd(), 'output', 'modules', 'csv')
@@ -114,7 +114,7 @@ def generate_module_data(pdfs=False):
         print('Creating PDF reports')
         module_templates = [f for f in os.listdir(BUILD_DIR) if f.endswith('_module.html')]
         for module in tqdm(module_templates):
-            mcode = module[:module.find('_report.html')]
+            mcode = module[:module.find('_report_module.html')]
             template_file = "file://%s" % os.path.join(BUILD_DIR, module)
             output_file = os.path.join("output", "modules", "pdf", "%s_report.pdf" % mcode)
             args = ['node', 'utils/generate_pdf.js', template_file, output_file]
@@ -122,4 +122,4 @@ def generate_module_data(pdfs=False):
 
 
 if __name__ == '__main__':
-    generate_module_data(True)
+    generate_module_data(False)

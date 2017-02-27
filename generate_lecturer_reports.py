@@ -13,7 +13,7 @@ from module_evaluation.extract_lecturer_data import *
 
 TEMPLATE_PATH = os.path.join(os.getcwd(), 'templates')
 TEMPLATE_ENVIRONMENT = Environment(autoescape=False, loader=FileSystemLoader(TEMPLATE_PATH), trim_blocks=False)
-TEMPLATE_FILES = []
+TEMPLATE_FILES = ['lecturer_style.css', 'lecturer_pie.js', 'lecturer_against_average.js', 'lecturer_comparison.js']
 
 INPUT_DIR = os.path.join(os.getcwd(), 'input')
 CSV_OUTPUT_DIR = os.path.join(os.getcwd(), 'output', 'lecturers', 'csv')
@@ -24,7 +24,7 @@ def render_template(template_filename, context):
     return TEMPLATE_ENVIRONMENT.get_template(template_filename).render(context)
 
 
-def generate_lecturer_data():
+def generate_lecturer_data(pdfs=False):
 
     if not os.path.exists(CSV_OUTPUT_DIR):
         os.makedirs(CSV_OUTPUT_DIR)
@@ -71,7 +71,6 @@ def generate_lecturer_data():
         lecturer_data_by_module = lecturer_data.groupby('Module')
 
         context['data']['modules'] = []
-        context['lecturer'] = lecturer
 
         for module in lecturer_data_by_module.groups:
 
@@ -84,7 +83,7 @@ def generate_lecturer_data():
             with open(os.path.join(CSV_OUTPUT_DIR, '%s_%s_percent_agreement_data.csv' % (lecturer, module.replace('/', '-'))), 'w') as output_file:
                 mld_counts_T.to_csv(output_file)
 
-            context['data']['modules'].append({'code': module.replace('/', '-'), 'data': mld_counts_T.to_csv()})
+            context['data']['modules'].append({'code': module.replace('/', '-'), 'data': mld_counts_T.to_csv(), 'count': len(mld.index)})
 
             lecturer_comparison_by_module['%s: %s' % (lecturer, module)] = mld_counts.ix['Agree']
             module_count['%s: %s' % (lecturer, module)] =  len(mld.index)
@@ -97,6 +96,7 @@ def generate_lecturer_data():
         lecturer_data_counts_T = transpose_and_name_index(lecturer_data_counts, 'question')
 
         lecturer_count[lecturer] = len(lecturer_data.index)
+        context['lecturer'] = lecturer
         context['count'] = len(lecturer_data.index)
 
         with open(os.path.join(CSV_OUTPUT_DIR, '%s_percent_agreement_all_data.csv' % (lecturer)), 'w') as output_file:
@@ -104,7 +104,6 @@ def generate_lecturer_data():
         context['data']['agreement_overall'] = lecturer_data_counts_T.to_csv()
 
         lecturer_comparison['%s' % (lecturer)] = lecturer_data_counts.ix['Agree']
-
 
         fpath = os.path.join(BUILD_DIR, '%s_report_lecturer.html' % (lecturer))
 
@@ -126,7 +125,19 @@ def generate_lecturer_data():
     with open(os.path.join(CSV_OUTPUT_DIR, 'all_lecturers_percent_agreement_by_module.csv'), 'w') as output_file:
         lecturer_comparison_by_module.to_csv(output_file)
 
+    print('Copying template files')
+    for f in tqdm(TEMPLATE_FILES):
+        shutil.copy(os.path.join(TEMPLATE_PATH, f), BUILD_DIR)
 
+    if pdfs:
+        print('Creating PDF reports')
+        lecturer_templates = [f for f in os.listdir(BUILD_DIR) if f.endswith('_report_lecturer.html')]
+        for lecturer in tqdm(lecturer_templates):
+            mcode = lecturer[:lecturer.find('_report_lecturer.html')]
+            template_file = "file://%s" % os.path.join(BUILD_DIR, lecturer)
+            output_file = os.path.join("output", "lecturers", "pdf", "%s_report.pdf" % mcode)
+            args = ['node', 'utils/generate_pdf.js', template_file, output_file]
+            subprocess.call(args)
 
 
 if __name__ == '__main__':

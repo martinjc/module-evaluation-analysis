@@ -5,7 +5,7 @@
     <title>Module Evaluation Analysis</title>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="lecturer_style.css">
 </head>
 <body>
     <div id="evaluation_data" style="display:none;">
@@ -16,26 +16,35 @@
 <div id="data_agreement_overall">{{data.agreement_overall}}</div>
     </div>
     <section id="front_page">
-        <h1>{{module}} (n={{count}})</h1>
+        <h1>{{lecturer}} (n={{count}})</h1>
         <div id="overall_evaluation">
-            <h2>Overall Evaluation</h2>
-            <p>Overall, I am satisfied with the quality of this module.</p>
-            <div id="overall_pie_vis"></div>
+            <div class="wrapper">
+                <div class="pie" id="pie_vis0">
+                    <h3 class="pie_title"></h3>
+                </div>
+                <div class="pie" id="pie_vis1">
+                    <h3 class="pie_title"></h3>
+                </div>
+                <div class="pie" id="pie_vis2">
+                    <h3 class="pie_title"></h3>
+                </div>
+            </div>
         </div>
+        <h2>School Average Comparison</h2>
+        <div id="comparison"></div>
     </section>
 
-    <div class="page-break"></div>
-    <section id="agreement_against_average">
-        <h2>Percentage Agreement vs. School Average</h2>
-        <p>The following shows the percentage agreement for all evaluation questions, against the average for all school modules included in this evaluation</p>
-        <div id="agreement_evaluation_vis"></div>
-    </section>
-    <div class="page-break"></div>
-    <section id="evaluation_comparison">
-        <h2>Question Breakdown</h2>
-        <p>The following shows the percentage breakdown of N/A, Disagree, Neither Agree nor Disagree and Agree for all evaluation questions, against the average for all school modules included in this evaluation</p>
-        <div id="overall_evaluation_vis"></div>
-    </section>
+    {% if data.modules|length > 1%}
+        {% for module in data.modules %}
+            <div class="page-break"></div>
+            <section id="pies_{{module.code}}">
+                <h2>{{module.code}} (n={{module.count}})</h2>
+                <div class="pie" id="pie_vis1"></div>
+                <div class="pie" id="pie_vis2"></div>
+                <div class="pie" id="pie_vis3"></div>
+            </section>
+        {% endfor %}
+    {% endif %}
 
     <div class="page-break"></div>
     <section id="attribution">
@@ -49,9 +58,15 @@
             </p>
         </footer>
     </section>
-    <script src="overall_pie.js"></script>
-    <script src="highlowlights.js"></script>
-    <script src="module_comparison.js"></script>
-    <script src="module_against_average.js"></script>
+    <script>
+    var module_data_list = [];
+    {% for module in data.modules %}
+        module_data_list.push("{{module.code}}");
+    {% endfor %}
+    console.log(module_data_list);
+    </script>
+    <script src="lecturer_pie.js"></script>
+    <script src="lecturer_against_average.js"></script>
+    <script src="lecturer_comparison.js"></script>
 </body>
 </html>

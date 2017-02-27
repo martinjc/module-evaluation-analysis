@@ -79,7 +79,7 @@
             var word;
             var line = [];
             var lineNumber = 0;
-            var lineHeight = 0.5;
+            var lineHeight = 1;
             var y = text.attr("y");
             var x = 0;
             var dy = parseFloat(text.attr("dy"));
@@ -99,7 +99,7 @@
                     tspan = text.append("tspan")
                         .attr("x", x)
                         .attr("y", y)
-                        .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                        .attr("dy", lineHeight + "em")
                         .attr("dx", dx + "em")
                         .text(word);
                 }
