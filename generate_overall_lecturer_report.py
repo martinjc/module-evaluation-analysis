@@ -13,7 +13,7 @@ from module_evaluation.extract_lecturer_data import *
 
 TEMPLATE_PATH = os.path.join(os.getcwd(), 'templates')
 TEMPLATE_ENVIRONMENT = Environment(autoescape=False, loader=FileSystemLoader(TEMPLATE_PATH), trim_blocks=False)
-TEMPLATE_FILES = ['lecturer_style.css']
+TEMPLATE_FILES = ['lecturer_style.css', 'overall_lecturer_analysis.js']
 
 INPUT_DIR = os.path.join(os.getcwd(), 'input')
 CSV_OUTPUT_DIR = os.path.join(os.getcwd(), 'output', 'lecturers', 'csv')
@@ -90,9 +90,9 @@ def generate_lecturer_data(pdfs=False):
         print('Creating PDF report')
         template_file = "file://%s" % fpath
         output_file = os.path.join("output", "lecturers", "pdf", "overall_lecturer_report.pdf")
-        args = ['node', 'utils/generate_pdf.js', template_file, output_file]
+        args = ['node', 'utils/generate_portrait_pdf.js', template_file, output_file]
         subprocess.call(args)
 
 
 if __name__ == '__main__':
-    generate_lecturer_data()
+    generate_lecturer_data(True)

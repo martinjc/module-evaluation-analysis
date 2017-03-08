@@ -18,10 +18,12 @@
     </section>
 
     {% for question in questions %}
+        <div class="question">
+            <h2>{{question.q}}</h2>
+            <div id="{{question.id}}"></div>
+            <div class="page-break"></div>
+        </div>
 
-        <h2>{{question.q}}</h2>
-        <div id="{{question.id}}"></div>
-        <div class="page-break"></div>
     {% endfor %}
 
     <div class="page-break"></div>
@@ -36,5 +38,6 @@
             </p>
         </footer>
     </section>
+    <script src="overall_lecturer_analysis.js"></script>
 </body>
 </html>

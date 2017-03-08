@@ -134,7 +134,7 @@ def generate_lecturer_data(pdfs=False):
             mcode = lecturer[:lecturer.find('_report_lecturer.html')]
             template_file = "file://%s" % os.path.join(BUILD_DIR, lecturer)
             output_file = os.path.join("output", "lecturers", "pdf", "%s_report.pdf" % mcode)
-            args = ['node', 'utils/generate_pdf.js', template_file, output_file]
+            args = ['node', 'utils/generate_landscape_pdf.js', template_file, output_file]
             subprocess.call(args)
 
 

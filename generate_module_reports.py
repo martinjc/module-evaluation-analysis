@@ -117,9 +117,9 @@ def generate_module_data(pdfs=False):
             mcode = module[:module.find('_report_module.html')]
             template_file = "file://%s" % os.path.join(BUILD_DIR, module)
             output_file = os.path.join("output", "modules", "pdf", "%s_report.pdf" % mcode)
-            args = ['node', 'utils/generate_pdf.js', template_file, output_file]
+            args = ['node', 'utils/generate_landscape_pdf.js', template_file, output_file]
             subprocess.call(args)
 
 
 if __name__ == '__main__':
-    generate_module_data(False)
+    generate_module_data(True)
