@@ -45,7 +45,7 @@
     questions.forEach(function(q, i) {
 
         var width = 400;
-        var height = 800;
+        var height = 900;
 
         var svg = d3.select('#q' + i)
             .append('svg')
