@@ -90,7 +90,7 @@ def generate_lecturer_data(pdfs=False):
         print('Creating PDF report')
         template_file = "file://%s" % fpath
         output_file = os.path.join("output", "lecturers", "pdf", "overall_lecturer_report.pdf")
-        args = ['node', 'utils/generate_portrait_pdf.js', template_file, output_file]
+        args = ['node', 'utils/generate_landscape_pdf.js', template_file, output_file]
         subprocess.call(args)
 
 

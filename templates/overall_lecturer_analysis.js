@@ -1,13 +1,13 @@
 (function() {
 
     var margin = {
-        top: 50,
-        bottom: 20,
-        left: 10,
-        right: 10,
+        top: 60,
+        bottom: 70,
+        left: 70,
+        right: 150,
     };
 
-    var label_margin_left = 100;
+    var label_margin = 100;
 
     var pformat = d3.format('.1%');
 
@@ -44,8 +44,35 @@
 
     questions.forEach(function(q, i) {
 
-        var width = 400;
-        var height = 900;
+        function relax(data) {
+            var spacing = 20;
+            var dx = 1;
+            var repeat = false;
+            data.forEach(function(dA, i) {
+                var xA = dA.labelX;
+                data.forEach(function(dB, j) {
+                    var xB = dB.labelX
+                    if (i === j) {
+                        return;
+                    }
+                    diff = xA - xB;
+                    if (Math.abs(diff) > spacing) {
+                        return;
+                    }
+                    repeat = true;
+                    magnitude = diff > 0 ? 1 : -1;
+                    adjust = magnitude * dx;
+                    dA.labelX = +xA + adjust;
+                    dB.labelX = +xB - adjust;
+                })
+            })
+            if (repeat) {
+                relax(data);
+            }
+        }
+
+        var width = 1100;
+        var height = 500;
 
         var svg = d3.select('#q' + i)
             .append('svg')
@@ -56,7 +83,7 @@
 
         var legend = svg.append("g")
             .attr('class', 'legend')
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top / 4 + ')');
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top / 2 + ')');
 
         svg = svg.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -67,8 +94,8 @@
         svg.append('g')
             .attr('class', 'labels')
 
-        var yScale = d3.scaleLinear()
-            .range([height, 0])
+        var xScale = d3.scaleLinear()
+            .range([width, 0])
 
         var colourScale = d3.scaleLinear()
             .range(["hsla(0, 60%, 50%, 1)", "hsla(45, 70%, 60%, 1)", "hsla(90, 50%, 50%, 1)"]);
@@ -83,9 +110,11 @@
             };
         });
 
-        yScale.domain([d3.min(question_data, function(d) {
+        var minimum = d3.min(question_data, function(d) {
             return d.value < average_value ? d.value : d.average;
-        }), 1.05]);
+        });
+
+        xScale.domain([minimum, 1.05]);
         colourScale.domain([d3.min(question_data, function(d) {
             return d.diff;
         }), 0, d3.max(question_data, function(d) {
@@ -93,9 +122,11 @@
         })]);
 
         question_data.forEach(function(d) {
-            d.y = yScale(d.value);
-            d.starty = yScale(d.value);
+            d.x = xScale(d.value);
+            d.labelX = xScale(d.value);
         });
+
+        relax(question_data);
 
         var diamond = d3.symbol()
             .type(d3.symbolDiamond)
@@ -129,13 +160,43 @@
             .attr('dy', '0.25em')
             .text('Lecturer score');
 
+        legend
+            .append('path')
+            .attr('d', 'M ' + xScale(1) + ' ' + (height + 30) + ' L ' + width + ' ' + (height + 30) +
+                'M ' + xScale(1) + ' ' + (height + 40) + 'L ' + xScale(1) + ' ' + (height + 20) +
+                'M ' + width + ' ' + (height + 40) + 'L ' + width + ' ' + (height + 20))
+            .attr('stroke', 'black')
+            .attr('stroke-width', '0.5px');
+
+        legend
+            .append('text')
+            .attr('x', xScale(1))
+            .attr('y', (height + 60))
+            .attr('text-anchor', 'middle')
+            .text('Highest')
+
+        legend
+            .append('text')
+            .attr('x', width)
+            .attr('y', (height + 60))
+            .attr('text-anchor', 'middle')
+            .text('Lowest')
+
+        legend
+            .append('text')
+            .attr('x', width / 2)
+            .attr('y', (height + 80))
+            .attr('text-anchor', 'middle')
+            .attr('font-weight', 'bold')
+            .text('Percentage Agreement')
+
         var averages = svg.selectAll('.average')
             .data([average_value])
             .enter()
             .append('g')
             .attr('class', 'average')
             .attr('transform', function(d) {
-                return 'translate(30,' + yScale(d) + ')';
+                return 'translate(' + xScale(d) + ',' + (height - 30) + ')';
             })
             .append('path')
             .attr('d', diamond())
@@ -151,65 +212,31 @@
             .style('fill', function(d, i) {
                 return colourScale(d.diff);
             })
-            .attr('cy', function(d) {
-                return yScale(d.value);
-            })
             .attr('cx', function(d) {
-                return 30;
+                return xScale(d.value);
+            })
+            .attr('cy', function(d) {
+                return height - 30;
             })
             .attr('r', 5);
 
-        function relax() {
-            var spacing = 18;
-            var dy = 1;
-            var repeat = false;
-            labels = svg.selectAll('.label');
-            labels.each(function(d1, i) {
-                var a = this;
-                var labelA = d3.select(a);
-                var yA = labelA.attr('y');
-                labels.each(function(d2, j) {
-                    var b = this;
-                    var labelB = d3.select(b);
-                    var yB = labelB.attr('y');
-                    if (a === b) {
-                        return;
-                    }
-                    diff = yA - yB;
-                    if (Math.abs(diff) > spacing) {
-                        return;
-                    }
-                    repeat = true;
-                    magnitude = diff > 0 ? 1 : -1;
-                    adjust = magnitude * dy;
-                    labelA.attr('y', +yA + adjust);
-                    labelB.attr('y', +yB - adjust);
-                    d1.y = +yA + adjust;
-                    d2.y = +yB - adjust;
-                })
-            })
-            if (repeat) {
-                relax();
-            }
-        }
+        var labelg = svg.append('g')
+            .attr('transform', 'translate(0, ' + height + ')')
 
-        var labels = svg.selectAll('.label')
+        var labels = labelg.selectAll('.label')
             .data(question_data)
             .enter()
+            .append('g')
+            .attr('transform', function(d) {
+                return 'translate(' + d.labelX + ',' + (-label_margin) + ')';
+            })
             .append('text')
             .attr('class', 'label')
             .attr('text-anchor', 'start')
-            .attr('y', function(d) {
-                return yScale(d.value) + 6;
-            })
-            .attr('x', function(d) {
-                return label_margin_left;
-            })
+            .attr('transform', 'rotate(-45)')
             .text(function(d) {
                 return (d.lecturer);
             });
-
-        relax();
 
         var polylines = svg.selectAll(".lines")
             .data(question_data);
@@ -218,16 +245,15 @@
             .append("polyline")
             .attr("points", function(d) {
                 var start = [
-                    37, yScale(d.value)
+                    xScale(d.value), height - 35
                 ];
                 var midpoint = [
-                    (37 + ((label_margin_left - 37) / 2)), yScale(d.value)
+                    xScale(d.value), ((height - 35) - ((label_margin - 35) / 2)),
                 ];
-                end_y = yScale(d.value) === d.y ? d.y : (d.y - 6);
                 var end = [
-                    label_margin_left - 2, end_y
+                    d.labelX, height - label_margin + 2,
                 ];
                 return [start, midpoint, end];
             });
     });
-})();
+})();;
