@@ -14,7 +14,7 @@ function evaluationPie() {
 
     var svg;
 
-    var i = undefined;
+    var i = 0;
 
     var radius = Math.min(width, height) / 2;
 
