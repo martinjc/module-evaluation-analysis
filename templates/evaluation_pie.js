@@ -16,24 +16,11 @@ function evaluationPie() {
 
     var i = 0;
 
-    var radius = Math.min(width, height) / 2;
-
     var pformat = d3.format('.1%');
 
     var colourScale = d3.scaleOrdinal()
         .domain(['N/A', 'Disagree', 'Neither Agree nor Disagree', 'Agree'])
         .range(["#222", "hsla(0, 60%, 50%, 1)", "hsla(45, 70%, 60%, 1)", "hsla(90, 50%, 50%, 1)"]);
-
-    var arc = d3.arc()
-        .outerRadius(radius * 0.4)
-        .innerRadius(radius * 0.1)
-        .padAngle(.02)
-        .padRadius(100)
-        .cornerRadius(2);
-
-    var labelArc = d3.arc()
-        .outerRadius(radius * 0.4)
-        .innerRadius(radius);
 
     var pie = d3.pie()
         .sort(null)
@@ -189,6 +176,19 @@ function evaluationPie() {
                 }
             });
 
+            var radius = Math.min(width, height) / 2;
+
+            var arc = d3.arc()
+                .outerRadius(radius * 0.6)
+                .innerRadius(radius * 0.1)
+                .padAngle(.02)
+                .padRadius(100)
+                .cornerRadius(2);
+
+            var labelArc = d3.arc()
+                .outerRadius(radius * 0.4)
+                .innerRadius(radius);
+
             var slice = svg.select(".slices")
                 .selectAll("path.slice")
                 .data(pie(pie_data), key);
@@ -217,7 +217,7 @@ function evaluationPie() {
                 })
                 .attr("transform", function(d) {
                     var pos = labelArc.centroid(d);
-                    pos[0] = radius * 0.4 * (midAngle(d) < Math.PI ? 1 : -1);
+                    pos[0] = radius * (midAngle(d) < Math.PI ? 1 : -1);
                     return "translate(" + pos + ")";
                 })
                 .style("text-anchor", function(d) {
