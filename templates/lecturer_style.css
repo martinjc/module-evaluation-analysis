@@ -16,8 +16,14 @@ polyline {
     fill: none;
 }
 
-.page-break {
+.page_a4 {
+    width: 29cm;
+    height: 20cm;
     clear: both;
+    page-break-after: always;
+}
+
+.page-break {
     page-break-after: always;
 }
 
@@ -35,6 +41,10 @@ polyline {
     width: 33%;
     flex-grow: 1;
     flex-basis: 0;
+}
+
+.question {
+    margin-top: 200px;
 }
 
 table {

@@ -16,7 +16,9 @@ polyline {
     fill: none;
 }
 
-.page-break {
+.page_a4 {
+    width: 29cm;
+    height: 20cm;
     clear: both;
     page-break-after: always;
 }

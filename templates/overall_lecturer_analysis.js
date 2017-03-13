@@ -1,10 +1,10 @@
 (function() {
 
     var margin = {
-        top: 60,
-        bottom: 70,
+        top: 80,
+        bottom: 80,
         left: 70,
-        right: 150,
+        right: 170,
     };
 
     var label_margin = 100;
@@ -72,7 +72,7 @@
         }
 
         var width = 1100;
-        var height = 500;
+        var height = 400;
 
         var svg = d3.select('#q' + i)
             .append('svg')
