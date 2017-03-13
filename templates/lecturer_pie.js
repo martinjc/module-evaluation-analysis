@@ -13,7 +13,7 @@
                 top: 20,
                 bottom: 40,
                 left: 120,
-                right: 120,
+                right: 120
             })
             .i(i)
             .columns(columns);
