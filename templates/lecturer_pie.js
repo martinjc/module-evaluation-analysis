@@ -10,10 +10,10 @@
             .width(400)
             .height(250)
             .margin({
-                top: 100,
-                bottom: 100,
-                left: 100,
-                right: 100,
+                top: 20,
+                bottom: 40,
+                left: 120,
+                right: 120,
             })
             .i(i)
             .columns(columns);
