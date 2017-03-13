@@ -52,5 +52,71 @@
     <script src="lecturer_pie.js"></script>
     <script src="against_average.js"></script>
     <script src="lecturer_against_average.js"></script>
+    <script>
+    (function() {
+
+        var average_data = d3.csvParse(d3.select('#data_average')
+            .html());
+
+        var module_data = d3.csvParse(d3.select('#data_agreement_overall')
+            .html());
+
+        var comparison_data = module_data.map(function(d, i) {
+            if (average_data[i].question === d.question) {
+                return {
+                    'question': d.question.replace(': ', ''),
+                    'module': +d.Agree,
+                    'average': +average_data[i].Agree,
+                    'diff': (+d.Agree) - (+average_data[i].Agree)
+                }
+            }
+        });
+
+        var chart = againstAverage()
+            .width(1100)
+            .height(300)
+            .margin({
+                top: 40,
+                bottom: 20,
+                left: 60,
+                right: 200,
+            })
+
+        var container = d3.select("#comparison")
+            .datum(comparison_data)
+            .call(chart);
+
+    })();
+    (function() {
+
+        var module_data = d3.csvParse(d3.select('#data_agreement_overall')
+            .html());
+        var columns = module_data.columns.splice(1);
+
+        module_data.forEach(function(d, i) {
+
+            var chart = evaluationPie()
+                .width(400)
+                .height(250)
+                .margin({
+                    top: 20,
+                    bottom: 40,
+                    left: 120,
+                    right: 120
+                })
+                .i(i)
+                .columns(columns);
+
+            var container = d3.select("#pie_vis" + i)
+                .datum(d)
+                .call(chart);
+
+            container.select('h3')
+                .html(d.question.replace(': ', ''));
+
+        });
+
+    })();
+    </script>
 </body>
 </html>
