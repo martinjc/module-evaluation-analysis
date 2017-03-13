@@ -13,7 +13,7 @@ from module_evaluation.extract_lecturer_data import *
 
 TEMPLATE_PATH = os.path.join(os.getcwd(), 'templates')
 TEMPLATE_ENVIRONMENT = Environment(autoescape=False, loader=FileSystemLoader(TEMPLATE_PATH), trim_blocks=False)
-TEMPLATE_FILES = ['lecturer_style.css', 'evaluation_pie.js', 'lecturer_pie.js', 'lecturer_against_average.js']
+TEMPLATE_FILES = ['lecturer_style.css', 'evaluation_pie.js', 'against_average.js', 'lecturer_pie.js', 'lecturer_against_average.js']
 
 INPUT_DIR = os.path.join(os.getcwd(), 'input')
 CSV_OUTPUT_DIR = os.path.join(os.getcwd(), 'output', 'lecturers', 'csv')
