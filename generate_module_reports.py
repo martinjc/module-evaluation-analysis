@@ -13,7 +13,7 @@ from module_evaluation.extract_module_data import *
 
 TEMPLATE_PATH = os.path.join(os.getcwd(), 'templates')
 TEMPLATE_ENVIRONMENT = Environment(autoescape=False, loader=FileSystemLoader(TEMPLATE_PATH), trim_blocks=False)
-TEMPLATE_FILES = ['module_style.css', 'evaluation_pie.js', 'against_average.js', 'module_comparison.js', 'highlowlights.js']
+TEMPLATE_FILES = ['style.css', 'evaluation_pie.js', 'against_average.js', 'module_comparison.js', 'highlowlights.js']
 
 INPUT_DIR = os.path.join(os.getcwd(), 'input')
 CSV_OUTPUT_DIR = os.path.join(os.getcwd(), 'output', 'modules', 'csv')

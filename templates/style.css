@@ -40,6 +40,27 @@ polyline {
     width: 45%;
 }
 
+.wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.pie {
+    width: 33%;
+    flex-grow: 1;
+    flex-basis: 0;
+}
+
+.question {
+    height: 100%;
+    width: 100%;
+}
+
+.question .vis {
+    height: 80%;
+    width: 100%;
+}
+
 table {
     width: 100%;
 }
