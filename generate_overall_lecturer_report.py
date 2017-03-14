@@ -13,7 +13,7 @@ from module_evaluation.extract_lecturer_data import *
 
 TEMPLATE_PATH = os.path.join(os.getcwd(), 'templates')
 TEMPLATE_ENVIRONMENT = Environment(autoescape=False, loader=FileSystemLoader(TEMPLATE_PATH), trim_blocks=False)
-TEMPLATE_FILES = ['lecturer_style.css', 'overall_lecturer_analysis.js']
+TEMPLATE_FILES = ['style.css', 'overall_lecturer_analysis.js']
 
 INPUT_DIR = os.path.join(os.getcwd(), 'input')
 CSV_OUTPUT_DIR = os.path.join(os.getcwd(), 'output', 'lecturers', 'csv')
