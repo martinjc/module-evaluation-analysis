@@ -1,8 +1,8 @@
 (function() {
 
     var margin = {
-        top: 80,
-        bottom: 80,
+        top: 100,
+        bottom: 100,
         left: 70,
         right: 170,
     };
@@ -71,8 +71,13 @@
             }
         }
 
-        var width = 1100;
-        var height = 400;
+        var width = document.querySelector(".question .vis")
+            .clientWidth;
+        var height = document.querySelector(".question .vis")
+            .clientHeight;
+        //
+        // var width = 1100;
+        // var height = 400;
 
         var svg = d3.select('#q' + i)
             .append('svg')
