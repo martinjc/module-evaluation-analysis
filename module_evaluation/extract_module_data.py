@@ -1,7 +1,21 @@
 import os
 import pandas
 
+from collections import defaultdict
+
 from module_evaluation.analysis import MODULE_COLUMNS, LIKERT
+
+
+def get_module_occurence_dict(dataframes):
+
+    modules = defaultdict(list)
+    for df in dataframes:
+        if 'Module' in df.columns:
+            df_modules = df['Module'].unique()
+            for m in df_modules:
+                m, o = m.split('/')
+                modules[m].append(o)
+    return modules
 
 
 def combine_module_evaluation_data(dataframes):
