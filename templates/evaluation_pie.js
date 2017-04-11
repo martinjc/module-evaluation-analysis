@@ -69,14 +69,17 @@ function evaluationPie() {
     }
 
     function getTransformation(transform) {
+        /*
+         * This code comes from a StackOverflow answer to a question looking
+         * to replace the d3.transform() functionality from v3.
+         * http://stackoverflow.com/questions/38224875/replacing-d3-transform-in-d3-v4
+         */
         var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
         g.setAttributeNS(null, "transform", transform);
         var matrix = g.transform.baseVal.consolidate()
             .matrix;
 
-        // Below calculations are taken and adapted from the private function
-        // transform/decompose.js of D3's module d3-interpolate.
         var {
             a,
             b,
