@@ -1,7 +1,7 @@
 import os
 import pandas
 
-from module_evaluation.analysis import LIKERT
+from module_evaluation.analysis import LIKERT, EXCLUDE_COLUMNS
 
 def convert_to_likert_and_reduce(data):
     # don't need 'Module' column
@@ -25,6 +25,11 @@ def transpose_and_name_index(data, index_name):
 def read_input_dataframes(input_dir):
     input_files = [f for f in os.listdir(input_dir) if f.endswith('.xlsx')]
     dataframes = [pandas.read_excel(os.path.join(input_dir, f)) for f in input_files]
+    # remove columns we don't care about
+    for df in dataframes:
+        for column in EXCLUDE_COLUMNS:
+            if column in df.columns:
+                del df[column]
     return dataframes
 
 

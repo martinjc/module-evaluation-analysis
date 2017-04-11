@@ -3,7 +3,7 @@ import pandas
 
 from collections import defaultdict
 
-from module_evaluation.analysis import MODULE_COLUMNS, LIKERT
+from module_evaluation.analysis import LIKERT
 
 
 def get_module_occurence_dict(dataframes):
@@ -23,7 +23,9 @@ def combine_module_evaluation_data(dataframes):
     # combine the data frames into one, dropping any NaNs
     all_module_data_frames = []
     for df in dataframes:
-        ad_f = df[MODULE_COLUMNS].dropna()
+        # lecturer specific columns contain ':'
+        non_lecturer_columns = [c for c in df.columns if c.find(':') != -1]
+        ad_f = df[non_lecturer_columns].dropna()
         all_module_data_frames.append(ad_f)
     all_module_data = pandas.concat(all_module_data_frames)
 
@@ -33,7 +35,7 @@ def combine_module_evaluation_data(dataframes):
 
 def generate_module_mean_comparison(all_module_data):
 
-    module_comparison = pandas.DataFrame(index=MODULE_COLUMNS)
+    module_comparison = pandas.DataFrame(index=all_module_data.columns)
     data_by_module = all_module_data.groupby('Module')
     module_comparison['AllModules'] = all_module_data.mean()
 

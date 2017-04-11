@@ -1,25 +1,13 @@
-LECTURER_COLUMNS = [
-    ': Was good at explaining things.',
-    ': Was available when needed.',
-    ': Made the subject interesting.'
-]
-
-MODULE_COLUMNS = [
-    'Module',
-    'I had a good idea of what to expect from this module.',
-    'The module met my expectations in terms of the knowledge I have gained.',
-    'I feel confident in communicating the knowledge I have gained on the module.',
-    'The module has helped my personal development by improving my employability skills (e.g. presentation skills, communication skills).',
-    'The range of the module’s resources (on Learning Central and/or in paper form) has effectively supported my learning.',
-    'Reading materials (books, journals, etc.) for this module were readily accessible.',
-    'The teaching rooms used for this module were suitable for the style of delivery.',
-    'I had a clear sense of what is required of me in the assessment/s for this module.',
-    'The criteria used to mark my work were made clear in advance.',
-    'Feedback on my marked work was provided within the specified timeframe.',
-    'Feedback has helped me to clarify things I did not understand.',
-    'The module has been well organised.',
-    'Any changes in the module or teaching were communicated effectively.',
-    'Overall, I am satisfied with the quality of this module.'
+EXCLUDE_COLUMNS = [
+    'Evaluation',
+    'What proportion of the timetabled activities have you attended?',
+    'On average, how many hours have you spent per week on this module, outside of the timetabled activities? Please note: there is no optimal answer for this question',
+    'What did you particularly value about the module?',
+    'How do you think the module could be improved?',
+    'What proportion of the timetabled activities have you attended?',
+    'On average, how many hours have you spent per week on this module, outside of the timetabled activities?',
+    'What did you particularly like about the module?',
+    'What would you like to see changed?'
 ]
 
 LIKERT = {

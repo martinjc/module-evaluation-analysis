@@ -1,6 +1,6 @@
 import pandas
 
-from module_evaluation.analysis import LECTURER_COLUMNS, LIKERT
+from module_evaluation.analysis import LIKERT
 
 
 def get_lecturer_list(dataframes):
@@ -9,8 +9,8 @@ def get_lecturer_list(dataframes):
     lecturers = set()
 
     for df in dataframes:
-        l = [n.replace(LECTURER_COLUMNS[0], '') for n in df.columns if n.endswith(LECTURER_COLUMNS[0])]
-        lecturers |= set(l)
+        lecturer_columns = [c[:c.find(':')] for c in df.columns if c.find(':') != -1]
+        lecturers |= set(lecturer_columns)
 
     return list(lecturers)
 
@@ -21,11 +21,11 @@ def combine_lecturer_data(dataframes, lecturers):
 
     for lecturer in lecturers:
 
-        this_lecturer_columns = ['%s%s' % (lecturer, column) for column in LECTURER_COLUMNS]
         lecturer_frames = []
 
         for df in dataframes:
-            if this_lecturer_columns[0] in df.columns:
+            this_lecturer_columns = [c for c in df.columns if c.find(':') != -1 and c.find(lecturer) != -1]
+            if(len(this_lecturer_columns) > 0):
                 ld_f = df[['Module'] + this_lecturer_columns].dropna()
                 lecturer_frames.append(ld_f)
 
@@ -39,14 +39,12 @@ def combine_lecturer_data(dataframes, lecturers):
 
 def extract_lecturer_data(dataframes, lecturer):
 
-    this_lecturer_columns = ['%s%s' % (lecturer, column) for column in LECTURER_COLUMNS]
-
     lecturer_frames = []
 
     for df in dataframes:
+        this_lecturer_columns = [c for c in df.columns if c.find(':') != -1 and c.find(lecturer) != -1]
 
-        if this_lecturer_columns[0] in df.columns:
-
+        if(len(this_lecturer_columns) > 0):
             ld_f = df[['Module'] + this_lecturer_columns].dropna()
             lecturer_frames.append(ld_f)
 

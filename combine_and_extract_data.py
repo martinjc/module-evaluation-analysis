@@ -3,7 +3,7 @@ import pandas
 
 
 from module_evaluation.data_transform import read_input_dataframes
-from module_evaluation.extract_lecturer_data import get_lecturer_list
+from module_evaluation.extract_lecturer_data import get_lecturer_list, extract_lecturer_data
 from module_evaluation.extract_module_data import get_module_occurence_dict
 
 
@@ -26,8 +26,17 @@ print(modules)
 # figure out which lecturer data we have
 lecturers = get_lecturer_list(dataframes)
 print(lecturers)
+
 # figure out which lecturer goes with which module data
-#
+for lecturer in lecturers:
+    lecturer_data = extract_lecturer_data(dataframes, lecturer)
+    lecturer_modules = get_module_occurence_dict([lecturer_data])
+
+    print(lecturer)
+    print(lecturer_modules)
+
+
+
 # create per-year averages
 # create per-semester averages
 # create per-module averages
