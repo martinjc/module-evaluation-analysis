@@ -1,3 +1,7 @@
+
+# Non numeric columns, or columns that don't ask questions answered by a likert scale
+# for now we exclude them from the analysis
+#
 EXCLUDE_COLUMNS = [
     'Evaluation',
     'What proportion of the timetabled activities have you attended?',
@@ -10,6 +14,7 @@ EXCLUDE_COLUMNS = [
     'What would you like to see changed?'
 ]
 
+# Mapping from numbers to human-readable strings
 LIKERT = {
     0.0: 'N/A',
     1.0: 'Disagree Strongly',
@@ -19,6 +24,9 @@ LIKERT = {
     5.0: 'Agree Strongly'
 }
 
+
+# Collections of modules that may need to be analysed together
+# Add or remove from here as you please
 YEAR1 = ['CM1101', 'CM1102', 'CM1103', 'CM1104', 'CM1201', 'CM1202', 'CM1204', 'CM1205', 'CM1206', 'CM1208', 'CM1209']
 YEAR2 = ['CM2101', 'CM2102', 'CM2103', 'CM2104', 'CM2105', 'CM2201', 'CM2203', 'CM2205', 'CM2206', 'CM2207', 'CM2208', 'CM2302', 'CM2303', 'CM2305', 'CM2500']
 YEAR3 = ['CM3101', 'CM3103', 'CM3104', 'CM3105', 'CM3106', 'CM3107', 'CM3109', 'CM3110', 'CM3111', 'CM3112', 'CM3113', 'CM3114', 'CM3201', 'CM3202', 'CM3203', 'CM3301', 'CM3302', 'CM3303', 'CM3304']
@@ -34,12 +42,16 @@ PFMSDSYA = ['CMT108', 'CMT112', 'CMT103', 'CMT209', 'CMT212', 'CMT111', 'CMT202'
 PFMSISPA = ['CMT301', 'CMT306', 'CMT105', 'CMT213', 'CMT104', 'CMT202']
 PFMSCDJ = ['CMT112', 'CMT103', 'CMT212', 'CMT111', 'CMT206']
 
+# Mapping of years (potentially input folders?) to the module occurences
+# Using 'A' to mean an occurence when it's also used to denote semester is *super helpful*
 YEARS2OCCURENCES =
 {
     '1516': '15A',
     '1617': '16A'
 }
 
+# Mapping of the subsets above to a human-readable string. Also collects all subsets together
+# so they can all be referred to and analysed 
 SUBSETS = [
     {
         'title': 'Year 1 CS',
