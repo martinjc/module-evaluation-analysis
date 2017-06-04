@@ -68,9 +68,3 @@ def extract_lecturer_data(dataframes, lecturer):
     lecturer_data.rename(columns = lambda x:  x.replace(lecturer, ''), inplace=True)
 
     return lecturer_data
-
-
-def extract_lecturer_data_for_module_occurence(dataframes, lecturer, module, occurence):
-    lecturer_data = extract_lecturer_data(dataframes, lecturer)
-    lecturer_module_data = lecturer_data.loc[lecturer_data['Module'] == '%s/%s' % (module, occurence)]
-    return lecturer_module_data
