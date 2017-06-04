@@ -37,6 +37,22 @@ def combine_lecturer_data(dataframes, lecturers):
     return all_lecturer_data
 
 
+def extract_lecturer_data_for_modules_occurence(dataframes, lecturer, modules, occurence):
+    lecturer_frames = []
+
+    for df in dataframes:
+        this_lecturer_columns = [c for c in df.columns if c.find(':') != -1 and c.find(lecturer) != -1]
+
+        if(len(this_lecturer_columns) > 0):
+            ld_f = df[['Module'] + this_lecturer_columns].dropna()
+            lecturer_frames.append(ld_f.loc[ld_f['Module'].isin(['%s/%s' % (module, occurence) for module in modules])])
+
+    lecturer_data = pandas.concat(lecturer_frames)
+    lecturer_data.rename(columns = lambda x:  x.replace(lecturer, ''), inplace=True)
+
+    return lecturer_data
+
+
 def extract_lecturer_data(dataframes, lecturer):
 
     lecturer_frames = []
