@@ -71,4 +71,5 @@ def generate_module_mean_comparison(all_module_data):
         del module_data['Module']
         module_comparison[module] = module_data.mean()
 
+    module_comparison.drop('Module', inplace=True)
     return module_comparison
