@@ -66,7 +66,7 @@ def generate_module_mean_comparison(all_module_data):
     data_by_module = all_module_data.groupby('Module')
     module_comparison['AllModules'] = all_module_data.mean()
 
-    for module in data_by_module.groups():
+    for module in data_by_module.groups:
         module_data = data_by_module.get_group(module)
         del module_data['Module']
         module_comparison[module] = module_data.mean()
