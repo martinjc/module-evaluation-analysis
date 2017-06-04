@@ -1,7 +1,7 @@
 import os
 import pandas
 
-from module_evaluation.analysis import LIKERT, EXCLUDE_COLUMNS
+from module_evaluation.config import LIKERT, EXCLUDE_COLUMNS
 
 def convert_to_likert_and_reduce(data):
     # don't need 'Module' column

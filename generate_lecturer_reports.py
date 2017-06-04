@@ -7,7 +7,7 @@ from tqdm import tqdm
 from weasyprint import HTML
 from jinja2 import Environment, FileSystemLoader
 
-from module_evaluation.analysis import *
+from module_evaluation.config import *
 from module_evaluation.data_transform import *
 from module_evaluation.extract_lecturer_data import *
 

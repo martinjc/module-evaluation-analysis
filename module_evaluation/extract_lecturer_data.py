@@ -1,6 +1,6 @@
 import pandas
 
-from module_evaluation.analysis import LIKERT
+from module_evaluation.config import LIKERT
 
 
 def get_lecturer_list(dataframes):

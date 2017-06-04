@@ -3,7 +3,7 @@ import pandas
 
 from collections import defaultdict
 
-from module_evaluation.analysis import LIKERT
+from module_evaluation.config import LIKERT
 
 
 def get_module_occurence_dict(dataframes):

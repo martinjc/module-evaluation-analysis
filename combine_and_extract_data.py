@@ -4,7 +4,7 @@ import pandas
 
 from module_evaluation.data_transform import read_input_dataframes
 from module_evaluation.extract_lecturer_data import get_lecturer_list, extract_lecturer_data
-from module_evaluation.extract_module_data import get_module_occurence_dict
+from module_evaluation.extract_module_data import *
 
 
 INPUT_DIRECTORY = 'input'
