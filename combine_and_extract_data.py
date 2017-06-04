@@ -11,13 +11,12 @@ from module_evaluation.data_transform import read_input_dataframes, convert_to_l
 
 
 INPUT_DIRECTORY = 'input'
-YEARS = ['1516', '1617']
 
 OUTPUT_DIRECTORY = os.path.join(os.getcwd(), 'output')
 
 dataframes = []
 
-for year in YEARS:
+for year in YEARS2OCCURENCES.keys():
     input_folder = os.path.join(os.getcwd(), INPUT_DIRECTORY, year)
     print(input_folder)
     dataframes.extend(read_input_dataframes(input_folder))
@@ -42,6 +41,14 @@ for lecturer in lecturers:
     lecturers2modules[lecturer] = lecturer_modules
 
 print(lecturers2modules)
+
+for year in tqdm(YEARS2OCCURENCES.keys()):
+    for subset in tqdm(SUBSETS):
+        subset_data = get_module_and_occurence_data(dataframes, subset['subset'], YEARS2OCCURENCES[year])
+        subset_data_reduced = convert_to_likert_and_reduce(subset_data)
+
+        with open(os.path.join(OUTPUT_DIRECTORY, construct_filename(subset['title'], year)), 'w') as output_file:
+            subset_data_reduced.to_csv(output_file)
 
 
 #
