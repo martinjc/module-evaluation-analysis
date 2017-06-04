@@ -46,7 +46,7 @@ print('\n\nwriting reduced data for modules')
 for module in tqdm(modules2occurences.keys()):
     for occurence in tqdm(modules2occurences[module]):
         module_data = get_module_and_occurence_data(dataframes, [module], occurence)
-        module_data_reduced = convert_to_likert_and_reduce(module_data)
+        module_data_reduced = convert_to_likert_reduce_transpose_and_name_index_with_count(module_data, 'question')
         with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence(module, occurence)), 'w') as output_file:
             module_data_reduced.to_csv(output_file)
 
@@ -69,11 +69,19 @@ print('\n\nwriting reduced lecturer data')
 # reduce the data for each lecturer, and each module for each lecturer, and write out
 for lecturer in tqdm(lecturers2modules.keys()):
     lecturer_data = extract_lecturer_data(dataframes, lecturer)
-    lecturer_data_reduced = convert_to_likert_and_reduce(lecturer_data)
-    for module in tqdm(lecturers2modules[lecturer].keys()):
-        for occurence in tqdm(lecturers2modules[lecturer][module]):
-            lecturer_module_data = extract_lecturer_data_for_module_occurence(dataframes, lecturer, module, occurence)
-            lecturer_module_data_reduced = convert_to_likert_and_reduce(lecturer_module_data)
+    lecturer_data_reduced = convert_to_likert_reduce_transpose_and_name_index_with_count(lecturer_data, 'question')
+
+    for year in tqdm(YEARS2OCCURENCES.keys()):
+        lecturer_year_data = extract_lecturer_data_for_modules_occurence(dataframes, lecturer, lecturers2modules[lecturer].keys(), YEARS2OCCURENCES[year])
+        lecturer_year_data_reduced = convert_to_likert_reduce_transpose_and_name_index_with_count(lecturer_year_data, 'question')
+
+        with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence(lecturer, year)), 'w') as output_file:
+            lecturer_year_data_reduced.to_csv(output_file)
+
+    for module in lecturers2modules[lecturer].keys():
+        for occurence in lecturers2modules[lecturer][module]:
+            lecturer_module_data = extract_lecturer_data_for_modules_occurence(dataframes, lecturer, [module], occurence)
+            lecturer_module_data_reduced = convert_to_likert_reduce_transpose_and_name_index_with_count(lecturer_module_data, 'question')
             with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, occurence)), 'w') as output_file:
                 lecturer_module_data_reduced.to_csv(output_file)
 
@@ -82,26 +90,31 @@ print('\n\nwriting year and subset data')
 # reduce the data for each subset of modules and write out
 for year in tqdm(YEARS2OCCURENCES.keys()):
     year_data = get_module_and_occurence_data(dataframes, modules, YEARS2OCCURENCES[year])
-    year_data_reduced = convert_to_likert_and_reduce(year_data)
+    year_data_reduced = convert_to_likert_reduce_transpose_and_name_index_with_count(year_data, 'question')
 
-    with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence('year-data', year)), 'w') as output_file:
+    with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence('Year-Data - All modules', year)), 'w') as output_file:
         year_data_reduced.to_csv(output_file)
+
+    year_data_with_lecturers = get_module_and_occurence_data_with_lecturer(dataframes, modules, YEARS2OCCURENCES[year])
+    lecturer_year_data = combine_lecturer_data([year_data_with_lecturers], lecturers)
+    lecturer_year_data_reduced = convert_to_likert_reduce_transpose_and_name_index_with_count(lecturer_year_data, 'question')
+
+    with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence('Year-Data - All lecturers', year)), 'w') as output_file:
+        lecturer_year_data_reduced.to_csv(output_file)
 
     for subset in tqdm(SUBSETS):
         subset_data = get_module_and_occurence_data(dataframes, subset['subset'], YEARS2OCCURENCES[year])
-        subset_data_reduced = convert_to_likert_and_reduce(subset_data)
+        subset_data_reduced = convert_to_likert_reduce_transpose_and_name_index_with_count(subset_data, 'question')
 
         with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence(subset['title'], year)), 'w') as output_file:
             subset_data_reduced.to_csv(output_file)
 
+        subset_data_with_lecturers = get_module_and_occurence_data_with_lecturer(dataframes, subset['subset'], YEARS2OCCURENCES[year])
+        subset_data_with_lecturers = combine_lecturer_data([subset_data_with_lecturers], lecturers)
+        subset_data_with_lecturers_reduced = convert_to_likert_reduce_transpose_and_name_index_with_count(subset_data_with_lecturers, 'question')
 
-#
-# for dataset, modules in datasets.items():
-#     mean_comparison = get_module_and_occurence_data(dataframes, modules, '16A')
-#     print(mean_comparison)
-
-
-
+        with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence('%s - All lecturers' % subset['title'], year)), 'w') as output_file:
+            subset_data_with_lecturers_reduced.to_csv(output_file)
 
 # create per-semester averages
 # create per-module averages
