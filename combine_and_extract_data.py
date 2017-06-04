@@ -12,8 +12,16 @@ from module_evaluation.data_transform import read_input_dataframes, convert_to_l
 
 INPUT_DIRECTORY = 'input'
 
+# Create all the directories we'll need for output
 OUTPUT_DIRECTORY = os.path.join(os.getcwd(), 'output')
 
+for directory in ['lecturers', 'modules', 'subsets']:
+    for datatype in ['csv', 'pdf']:
+        to_create = os.path.join(OUTPUT_DIRECTORY, directory, datatype)
+        if not os.path.exists(to_create):
+            os.makedirs(to_create)
+
+# Read in all the data we have
 dataframes = []
 
 for year in YEARS2OCCURENCES.keys():
