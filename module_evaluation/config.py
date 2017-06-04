@@ -35,3 +35,57 @@ PFMSISPA = ['CMT301', 'CMT306', 'CMT105', 'CMT213', 'CMT104', 'CMT202']
 PFMSCDJ = ['CMT112', 'CMT103', 'CMT212', 'CMT111', 'CMT206']
 
 YEARS = ['15A', '16A']
+SUBSETS = [
+    {
+        'title': 'Year 1 CS',
+        'subset': YEAR1
+    },
+    {
+        'title': 'Year 2 CS',
+        'subset': YEAR2
+    },
+    {
+        'title': 'Year 3 CS',
+        'subset': YEAR3
+    },
+    {
+        'title': 'MSc',
+        'subset': MSC
+    },
+    {
+        'title': 'Year 1 ASE',
+        'subset': NSA_YEAR1
+    },
+    {
+        'title': 'Year 2 ASE',
+        'subset': NSA_YEAR2
+    },
+    {
+        'title': 'Year 3 ASE',
+        'subset': NSA_YEAR3
+    },
+    {
+        'title': 'MSc Advanced Computer Science',
+        'subset': PFMSADSA
+    },
+    {
+        'title': 'MSc Computing and IT Management',
+        'subset': PFMSCITA
+    },
+    {
+        'title': 'MSc Computing',
+        'subset': PFMSCMPA
+    },
+    {
+        'title': 'MSc Data Science and Analytics',
+        'subset': PFMSDSYA
+    },
+    {
+        'title': 'MSc Information Security and Privacy',
+        'subset': PFMSISPA
+    },
+    {
+        'title': 'MSc Computational and Data Journalism',
+        'subset': PFMSCDJ
+    },
+]
