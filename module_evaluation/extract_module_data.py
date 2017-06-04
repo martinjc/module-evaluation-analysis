@@ -43,6 +43,17 @@ def combine_module_evaluation_data(dataframes):
     return all_module_data
 
 
+def get_module_and_occurence_data_with_lecturer(dataframes, modules, occurence):
+
+    all_module_data_frames = []
+    for df in dataframes:
+
+        all_module_data_frames.append(df.loc[df['Module'].isin(['%s/%s' % (module, occurence) for module in modules])])
+
+    all_module_data = pandas.concat(all_module_data_frames)
+    return all_module_data
+
+
 
 def get_module_and_occurence_data(dataframes, modules, occurence):
 
