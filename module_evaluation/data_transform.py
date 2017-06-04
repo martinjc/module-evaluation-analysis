@@ -25,7 +25,6 @@ def transpose_and_name_index(data, index_name):
 def convert_to_likert_reduce_transpose_and_name_index(data, index_name):
     converted_data = convert_to_likert_and_reduce(data)
     return transpose_and_name_index(converted_data, index_name)
-    
 
 def read_input_dataframes(input_dir):
     input_files = [f for f in os.listdir(input_dir) if f.endswith('.xlsx')]
