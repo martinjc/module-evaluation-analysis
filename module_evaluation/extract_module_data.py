@@ -18,6 +18,17 @@ def get_module_occurence_dict(dataframes):
     return modules
 
 
+def get_module_list(dataframes):
+
+    modules = []
+    for df in dataframes:
+        if 'Module' in df.columns:
+            df_modules = df['Module'].unique()
+            for m in df_modules:
+                m, o = m.split('/')
+                modules.append(m)
+    return modules
+
 def combine_module_evaluation_data(dataframes):
 
     # combine the data frames into one, dropping any NaNs
