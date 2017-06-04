@@ -75,11 +75,17 @@ for lecturer in tqdm(lecturers2modules.keys()):
 
 # reduce the data for each subset of modules and write out
 for year in tqdm(YEARS2OCCURENCES.keys()):
+    year_data = get_module_and_occurence_data(dataframes, modules, YEARS2OCCURENCES[year])
+    year_data_reduced = convert_to_likert_and_reduce(year_data)
+
+    with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence('year-data', year)), 'w') as output_file:
+        year_data_reduced.to_csv(output_file)
+        
     for subset in tqdm(SUBSETS):
         subset_data = get_module_and_occurence_data(dataframes, subset['subset'], YEARS2OCCURENCES[year])
         subset_data_reduced = convert_to_likert_and_reduce(subset_data)
 
-        with open(os.path.join(OUTPUT_DIRECTORY, construct_filename(subset['title'], year)), 'w') as output_file:
+        with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence(subset['title'], year)), 'w') as output_file:
             subset_data_reduced.to_csv(output_file)
 
 
