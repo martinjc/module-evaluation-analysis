@@ -10,6 +10,8 @@ from module_evaluation.extract_module_data import *
 INPUT_DIRECTORY = 'input'
 YEARS = ['1516', '1617']
 
+OUTPUT_DIRECTORY = os.path.join(os.getcwd(), 'output')
+
 dataframes = []
 
 for year in YEARS:
@@ -17,27 +19,36 @@ for year in YEARS:
     print(input_folder)
     dataframes.extend(read_input_dataframes(input_folder))
 
-print(len(dataframes))
+modules = get_module_list(dataframes)
+print(modules)
 
 # figure out which modules we have, and which occurences of each modules
-modules = get_module_occurence_dict(dataframes)
-print(modules)
+modules2occurences = get_module_occurence_dict(dataframes)
+print(modules2occurences)
 
 # figure out which lecturer data we have
 lecturers = get_lecturer_list(dataframes)
 print(lecturers)
 
+lecturers2modules = {}
 # figure out which lecturer goes with which module data
 for lecturer in lecturers:
     lecturer_data = extract_lecturer_data(dataframes, lecturer)
     lecturer_modules = get_module_occurence_dict([lecturer_data])
 
-    print(lecturer)
-    print(lecturer_modules)
+    lecturers2modules[lecturer] = lecturer_modules
+
+print(lecturers2modules)
+
+
+#
+# for dataset, modules in datasets.items():
+#     mean_comparison = get_module_and_occurence_data(dataframes, modules, '16A')
+#     print(mean_comparison)
 
 
 
-# create per-year averages
+
 # create per-semester averages
 # create per-module averages
 #
