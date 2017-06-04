@@ -1,4 +1,5 @@
 import os
+import json
 import pandas
 
 from tqdm import tqdm
@@ -16,7 +17,7 @@ INPUT_DIRECTORY = 'input'
 OUTPUT_DIRECTORY = os.path.join(os.getcwd(), 'output')
 
 for directory in ['lecturers', 'modules', 'subsets']:
-    for datatype in ['csv', 'pdf']:
+    for datatype in ['csv', 'pdf', 'json']:
         to_create = os.path.join(OUTPUT_DIRECTORY, directory, datatype)
         if not os.path.exists(to_create):
             os.makedirs(to_create)
@@ -35,11 +36,15 @@ print('\nfound feedback data for these modules:')
 # get the list of modules we have data for
 modules = get_module_list(dataframes)
 print(modules)
+with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'json', 'modules.json'), 'w') as output_file:
+    json.dump(modules, output_file)
 
 print('\nfound occurences for these modules:')
 # figure out which modules we have, and which occurences of each module
 modules2occurences = get_module_occurence_dict(dataframes)
 print(modules2occurences)
+with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'json', 'module-occurences.json'), 'w') as output_file:
+    json.dump(modules2occurences, output_file)
 
 print('\n\nwriting reduced data for modules')
 # reduce the data for each module and write out
@@ -55,6 +60,8 @@ print('\nfound data for these lecturers:')
 # figure out which lecturer data we have
 lecturers = get_lecturer_list(dataframes)
 print(lecturers)
+with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'json', 'lecturers.json'), 'w') as output_file:
+    json.dump(lecturers, output_file)
 
 print('\nfound data for these lecturers, modules and occurences')
 lecturers2modules = {}
@@ -64,6 +71,8 @@ for lecturer in lecturers:
     lecturer_modules = get_module_occurence_dict([lecturer_data])
     lecturers2modules[lecturer] = lecturer_modules
 print(lecturers2modules)
+with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'json', 'lecturers-modules.json'), 'w') as output_file:
+    json.dump(lecturers2modules, output_file)
 
 print('\n\nwriting reduced lecturer data')
 # reduce the data for each lecturer, and each module for each lecturer, and write out
@@ -115,20 +124,3 @@ for year in tqdm(YEARS2OCCURENCES.keys()):
 
         with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence('%s - All lecturers' % subset['title'], year)), 'w') as output_file:
             subset_data_with_lecturers_reduced.to_csv(output_file)
-
-# create per-semester averages
-# create per-module averages
-#
-# school report - per year (lecturers)
-# school report - per year (modules)
-# school report - overall (yoy comparison)
-#
-# lecturer report
-# module teaching data (overall and per module)
-# yoy comparison
-#
-# module report (overall and per year)
-# yoy comparison
-#
-# programme/year report (all lecturers)
-# programme/year report (all modules)
