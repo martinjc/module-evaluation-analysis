@@ -44,14 +44,13 @@ PFMSCDJ = ['CMT112', 'CMT103', 'CMT212', 'CMT111', 'CMT206']
 
 # Mapping of years (potentially input folders?) to the module occurences
 # Using 'A' to mean an occurence when it's also used to denote semester is *super helpful*
-YEARS2OCCURENCES =
-{
+YEARS2OCCURENCES = {
     '1516': '15A',
     '1617': '16A'
 }
 
 # Mapping of the subsets above to a human-readable string. Also collects all subsets together
-# so they can all be referred to and analysed 
+# so they can all be referred to and analysed
 SUBSETS = [
     {
         'title': 'Year 1 CS',
