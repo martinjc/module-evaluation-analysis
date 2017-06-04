@@ -6,7 +6,7 @@ from tqdm import tqdm
 from module_evaluation.config import *
 from module_evaluation.io_utils import *
 from module_evaluation.extract_module_data import *
-from module_evaluation.extract_lecturer_data import get_lecturer_list, extract_lecturer_data
+from module_evaluation.extract_lecturer_data import *
 from module_evaluation.data_transform import read_input_dataframes, convert_to_likert_and_reduce
 
 
