@@ -29,12 +29,23 @@ for year in YEARS2OCCURENCES.keys():
     print(input_folder)
     dataframes.extend(read_input_dataframes(input_folder))
 
+# get the list of modules we have data for
 modules = get_module_list(dataframes)
 print(modules)
 
-# figure out which modules we have, and which occurences of each modules
+# figure out which modules we have, and which occurences of each module
 modules2occurences = get_module_occurence_dict(dataframes)
 print(modules2occurences)
+
+# reduce the data for each module and write out
+for module in tqdm(modules2occurences.keys()):
+    for occurence in tqdm(modules2occurences[module]):
+        module_data = get_module_and_occurence_data(dataframes, [module], occurence)
+        module_data_reduced = convert_to_likert_and_reduce(module_data)
+
+        with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence(module, occurence)), 'w') as output_file:
+            module_data_reduced.to_csv(output_file)
+
 
 # figure out which lecturer data we have
 lecturers = get_lecturer_list(dataframes)
