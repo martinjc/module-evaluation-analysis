@@ -44,6 +44,22 @@ def combine_module_evaluation_data(dataframes):
 
 
 
+def get_module_and_occurence_data(dataframes, modules, occurence):
+
+    all_module_data_frames = []
+    for df in dataframes:
+        # lecturer specific columns contain ':'
+        non_lecturer_columns = [c for c in df.columns if c.find(':') == -1]
+        ad_f = df[non_lecturer_columns].dropna()
+        all_module_data_frames.append(ad_f.loc[ad_f['Module'].isin(['%s/%s' % (module, occurence) for module in modules])])
+
+    all_module_data = pandas.concat(all_module_data_frames)
+    all_module_data.dropna(axis=1, inplace=True)
+    return all_module_data
+
+
+
+
 def generate_module_mean_comparison(all_module_data):
 
     module_comparison = pandas.DataFrame(index=all_module_data.columns)
