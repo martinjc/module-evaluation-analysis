@@ -30,6 +30,7 @@ def read_input_dataframes(input_dir):
         for column in EXCLUDE_COLUMNS:
             if column in df.columns:
                 del df[column]
+        df.rename(columns = lambda x:  x.replace('.', ''), inplace=True)
     return dataframes
 
 
