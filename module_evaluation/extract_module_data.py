@@ -38,7 +38,7 @@ def combine_module_evaluation_data(dataframes):
         non_lecturer_columns = [c for c in df.columns if c.find(':') != -1]
         ad_f = df[non_lecturer_columns].dropna()
         all_module_data_frames.append(ad_f)
-    all_module_data = pandas.concat(all_module_data_frames)
+    all_module_data = pandas.concat(all_module_data_frames).dropna(axis=1, inplace=True)
 
     return all_module_data
 
