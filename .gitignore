@@ -4,6 +4,7 @@ src_data/
 **/input/*
 **/output/*
 **/build/*
+.vscode/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
