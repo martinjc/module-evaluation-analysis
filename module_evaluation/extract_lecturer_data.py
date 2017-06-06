@@ -3,6 +3,15 @@ import pandas
 from module_evaluation.config import LIKERT
 
 
+def get_lecturer_columns(dataframes):
+
+    lecturers = get_lecturer_list(dataframes)
+    combined_data = combine_lecturer_data(dataframes, lecturers)
+    if 'Module' in combined_data.columns:
+        del combined_data['Module']
+    return combined_data.columns
+
+
 def get_lecturer_list(dataframes):
 
     # find out which lecturers we have
