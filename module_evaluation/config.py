@@ -105,3 +105,20 @@ SUBSETS = [
         'subset': PFMSCDJ
     },
 ]
+
+
+
+
+COLUMN_MAPPINGS = {
+    "Feedback has helped me to clarify things i did not understand": "Feedback has helped me to clarify things I did not understand",
+    "I feel confident in communicating the knowledge i have gained on the module": "I feel confident in communicating the knowledge I have gained on the module",
+    "I had a clear sense of what is required of me in the assessment/s for this module": "I had a clear sense of what was required of me in the assessment/s for this module",
+    "The module has been well organised": "The module was well organised and structured",
+    "The module was well organised and structured (eg lectures, seminars, visiting speakers)": "The module was well organised and structured",
+    "The module has helped my personal development by improving my employability skills (eg presentation skills, communication skills)": "The module has helped my personal development by improving my employability skills",
+    "The module has helped my personal development by improving my employability skills (eg presentation skills, communication skills, groupwork, methods training)": "The module has helped my personal development by improving my employability skills",
+    "The module met my expectations in terms of the knowledge i have gained": "The module met my expectations in terms of the knowledge I have gained",
+    "The range of the module's resources (on Learning Central and /or in paper form) effectively supported my learning": "The range of the module's resources effectively supported my learning",
+    "The range of the modules resources (on Learning Central and /or in paper form) effectively supported my learning": "The range of the module's resources effectively supported my learning",
+    "The range of the module’s resources (on Learning Central and/or in paper form) has effectively supported my learning": "The range of the module's resources effectively supported my learning",
+}
