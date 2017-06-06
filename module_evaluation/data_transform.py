@@ -1,7 +1,7 @@
 import os
 import pandas
 
-from module_evaluation.config import LIKERT, EXCLUDE_COLUMNS
+from module_evaluation.config import LIKERT, EXCLUDE_COLUMNS, COLUMN_MAPPINGS
 
 def convert_to_likert_and_reduce(data):
     # don't need 'Module' column
@@ -38,6 +38,7 @@ def read_input_dataframes(input_dir):
             if column in df.columns:
                 del df[column]
         df.rename(columns = lambda x:  x.replace('.', ''), inplace=True)
+        df.rename(columns=COLUMN_MAPPINGS, inplace=True)
     return dataframes
 
 
