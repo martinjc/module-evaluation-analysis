@@ -9,6 +9,7 @@ def get_lecturer_columns(dataframes):
     combined_data = combine_lecturer_data(dataframes, lecturers)
     if 'Module' in combined_data.columns:
         del combined_data['Module']
+
     return combined_data.columns
 
 

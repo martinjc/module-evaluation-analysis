@@ -8,25 +8,18 @@ def convert_to_likert_and_reduce(data):
     if 'Module' in data.columns:
         del data['Module']
 
-    count = len(data.index)
-
     data_counts = data.apply(lambda x: x.value_counts(normalize=True))
     new_index = [LIKERT[value] for value in LIKERT.keys() if value in data_counts.index]
     data_counts.index = new_index
     data_counts.fillna(0, inplace=True)
     data_counts = data_counts.reset_index().replace({'index': {'Disagree Strongly':'Disagree', 'Agree Strongly': 'Agree'}}).groupby('index', sort=False).sum()
-    return data_counts, count
+    return data_counts
 
 
 def transpose_and_name_index(data, index_name):
     data_T = data.T
     data_T.index.name = index_name
     return data_T
-
-
-def convert_to_likert_reduce_transpose_and_name_index_with_count(data, index_name):
-    converted_data, count = convert_to_likert_and_reduce(data)
-    return transpose_and_name_index(converted_data, '%s (n = %d)' % (index_name, count))
 
 
 def read_input_dataframes(input_dir):
