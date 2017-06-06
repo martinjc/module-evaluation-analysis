@@ -8,24 +8,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
-{{lecturer}}
-{{year}}
-{{modules}}
-{{data}}
+
     <div id="evaluation_data" style="display:none;">
 <div id="data_subsets">{{data.subsets}}</div>
 <div id="data_overall">{{data.overall}}</div>
 {% for module in data.modules %}
-{{module.code}}
-{{module.data}}
+<div class="data_module" id="{{module.meta.code}}">{{module.data}}</div>
+<div class="meta_module" id="{{module.meta.code}}">{{module.meta_json}}</div>
 {% endfor %}
-
     </div>
 
     <div class="page_a4">
         <section id="front_page">
-            <h1>{{lecturer}} (n={{count}})</h1>
+            <h1>{{lecturer}} (Academic Year {{year}}) (n={{total}})</h1>
             <div id="teaching_evaluation">
                 <div class="wrapper">
                     <div class="pie" id="pie_vis0">
@@ -43,6 +38,29 @@
             <div id="comparison"></div>
         </section>
     </div>
+
+    {% for module in data.modules %}
+    <div class="page_a4">
+        <section id="module-page">
+            <h1>{{module.meta.code}} (n={{module.meta.count}})</h1>
+            <div id="teaching_evaluation">
+                <div class="wrapper">
+                    <div class="pie" id="{{module.code}}_pie_vis0">
+                        <h3 class="pie_title"></h3>
+                    </div>
+                    <div class="pie" id="{{module.code}}_pie_vis1">
+                        <h3 class="pie_title"></h3>
+                    </div>
+                    <div class="pie" id="{{module.code}}_pie_vis2">
+                        <h3 class="pie_title"></h3>
+                    </div>
+                </div>
+            </div>
+            <h2>School Average Comparison</h2>
+            <div id="{{module.code}}_comparison"></div>
+        </section>
+    </div>
+    {% endfor %}
 
     <div class="page_a4">
         <section id="attribution">

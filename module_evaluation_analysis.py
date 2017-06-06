@@ -272,25 +272,34 @@ def construct_templates(dataframes):
                 with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('Lecturer Year and Subset Comparison', year))) as input_file:
                     subsets = pandas.read_csv(input_file, index_col=0)
 
-            overall['School Average Agreement'] = subsets['All Lecturers']
+            context['total'] = float(counts.ix['All'])
             context['data']['overall'] = overall.to_csv()
-            context['data']['counts'] = counts.to_csv
-            context['data']['subsets'] = subsets.to_csv()
+            context['data']['counts'] = counts.to_csv()
+            all_subsets = set()
+            all_subsets.add('All Lecturers')
 
             context['data']['modules'] = []
             if len(this_years_modules) > 1:
                 for module in this_years_modules:
+                    subsets_needed = ['All Lecturers']
                     for subset in SUBSETS:
+                        if module in subset['subset']:
+                            subsets_needed.append(subset['title'])
+                            all_subsets.add(subset['title'])
 
                     if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, year))):
                         with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, year))) as input_file:
                             df = pandas.read_csv(input_file, index_col=0)
                             module_data = {}
-                            module_data['code'] = module
+                            module_data['meta'] = {}
+                            module_data['meta']['code'] = module
                             module_data['data'] = df.to_csv()
+                            module_data['meta']['count'] = float(counts.ix[module])
+                            module_data['meta']['subsets'] = subsets_needed
+                            module_data['meta_json'] = json.dumps(module_data['meta'])
                             context['data']['modules'].append(module_data)
 
-
+            context['data']['subsets'] = subsets[list(all_subsets)].to_csv()
 
             fpath = os.path.join(BUILD_DIR, '%s_lecturer_report - (%s).html' % (lecturer, year))
 
