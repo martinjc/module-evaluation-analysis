@@ -8,9 +8,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
+{{lecturer}}
+{{year}}
+{{modules}}
+{{data}}
     <div id="evaluation_data" style="display:none;">
-<div id="data_average">{{data.all_lecturer_percent_scores}}</div>
-<div id="data_agreement_overall">{{data.agreement_overall}}</div>
+<div id="data_subsets">{{data.subsets}}</div>
+<div id="data_overall">{{data.overall}}</div>
+{% for module in data.modules %}
+{{module.code}}
+{{module.data}}
+{% endfor %}
+
     </div>
 
     <div class="page_a4">
