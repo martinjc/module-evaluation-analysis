@@ -76,8 +76,7 @@ def extract_and_write_module_data(dataframes):
 
         for year in tqdm(YEARS2OCCURENCES.keys()):
             module_data = get_module_and_occurence_data(dataframes, [module], YEARS2OCCURENCES[year])
-            module_data_reduced = convert_to_likert_and_reduce(module_data)
-            module_data_reduced = transpose_and_name_index(module_data_reduced, 'question')
+            module_data_reduced = transform_for_output(module_data, 'question')
 
             module_counts[year].set_value(module, 'Count', len(module_data.index))
 
@@ -137,8 +136,7 @@ def extract_and_write_lecturer_data(dataframes):
             lecturer_count.index.name = 'Module'
 
             lecturer_year_data = extract_lecturer_data_for_modules_occurence(dataframes, lecturer, lecturers2modules[lecturer].keys(), YEARS2OCCURENCES[year])
-            lecturer_year_data_reduced = convert_to_likert_and_reduce(lecturer_year_data)
-            lecturer_year_data_reduced = transpose_and_name_index(lecturer_year_data_reduced, 'question')
+            lecturer_year_data_reduced = transform_for_output(lecturer_data, 'question')
 
             lecturer_count.set_value('All', 'Count', len(lecturer_year_data.index))
 
@@ -152,8 +150,7 @@ def extract_and_write_lecturer_data(dataframes):
             for module in lecturers2modules[lecturer].keys():
                 if YEARS2OCCURENCES[year] in lecturers2modules[lecturer][module]:
                     lecturer_module_data = extract_lecturer_data_for_modules_occurence(dataframes, lecturer, [module], YEARS2OCCURENCES[year])
-                    lecturer_module_data_reduced = convert_to_likert_and_reduce(lecturer_module_data)
-                    lecturer_module_data_reduced = transpose_and_name_index(lecturer_module_data_reduced, 'question')
+                    lecturer_module_data_reduced = transform_for_output(lecturer_module_data, 'question')
 
                     lecturer_count.set_value(module, 'Count', len(lecturer_module_data.index))
 
@@ -199,18 +196,17 @@ def extract_and_write_year_and_subset_data(dataframes):
 
         year_data_with_lecturers = get_module_and_occurence_data_with_lecturer(dataframes, get_module_list(dataframes), YEARS2OCCURENCES[year])
         lecturer_year_data = combine_lecturer_data([year_data_with_lecturers], get_lecturer_list(dataframes))
-        lecturer_year_data_reduced = convert_to_likert_and_reduce(lecturer_year_data)
-        lecturer_year_data_reduced = transpose_and_name_index(lecturer_year_data_reduced, 'question')
+        lecturer_year_data_reduced = transform_for_output(lecturer_year_data, 'question')
 
         if not lecturer_year_data_reduced.empty:
             lecturer_comparison_data[year]['All Lecturers'] = lecturer_year_data_reduced['Agree']
             with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence('Year-Data - All lecturers', year)), 'w') as output_file:
+                lecturer_year_data_reduced.rename(index = lambda x:  x.replace(': ', ''), inplace=True)
                 lecturer_year_data_reduced.to_csv(output_file)
 
         for subset in tqdm(SUBSETS):
             subset_data = get_module_and_occurence_data(dataframes, subset['subset'], YEARS2OCCURENCES[year])
-            subset_data_reduced = convert_to_likert_and_reduce(subset_data)
-            subset_data_reduced = transpose_and_name_index(subset_data_reduced, 'question')
+            subset_data_reduced = transform_for_output(subset_data, 'question')
 
             if not subset_data_reduced.empty:
                 module_comparison_data[year][subset['title']] = subset_data_reduced['Agree']
@@ -219,8 +215,7 @@ def extract_and_write_year_and_subset_data(dataframes):
 
             subset_data_with_lecturers = get_module_and_occurence_data_with_lecturer(dataframes, subset['subset'], YEARS2OCCURENCES[year])
             subset_data_with_lecturers = combine_lecturer_data([subset_data_with_lecturers], get_lecturer_list(dataframes))
-            subset_data_with_lecturers_reduced = convert_to_likert_and_reduce(subset_data_with_lecturers)
-            subset_data_with_lecturers_reduced = transpose_and_name_index(subset_data_with_lecturers_reduced, 'question')
+            subset_data_with_lecturers_reduced = transform_for_output(subset_data_with_lecturers, 'question')
 
             if not subset_data_with_lecturers_reduced.empty:
                 lecturer_comparison_data[year][subset['title']] = subset_data_with_lecturers_reduced['Agree']
@@ -263,17 +258,30 @@ def construct_templates(dataframes):
             context['year'] = year
             context['modules'] = this_years_modules
 
+            subsets = pandas.DataFrame()
+            overall = pandas.DataFrame()
+            counts = pandas.DataFrame()
+
             if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence(lecturer, year))):
                 with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence(lecturer, year))) as input_file:
-                    df = pandas.read_csv(input_file, index_col=0)
-                    context['data']['overall'] = df.to_csv()
+                    overall = pandas.read_csv(input_file, index_col=0)
             if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('%s Counts' % lecturer, year))):
                 with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('%s Counts' % lecturer, year))) as input_file:
-                    df = pandas.read_csv(input_file, index_col=0)
-                    context['data']['counts'] = df.to_csv()
+                    counts = pandas.read_csv(input_file, index_col=0)
+            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('Lecturer Year and Subset Comparison', year))):
+                with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('Lecturer Year and Subset Comparison', year))) as input_file:
+                    subsets = pandas.read_csv(input_file, index_col=0)
+
+            overall['School Average Agreement'] = subsets['All Lecturers']
+            context['data']['overall'] = overall.to_csv()
+            context['data']['counts'] = counts.to_csv
+            context['data']['subsets'] = subsets.to_csv()
+
             context['data']['modules'] = []
             if len(this_years_modules) > 1:
                 for module in this_years_modules:
+                    for subset in SUBSETS:
+
                     if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, year))):
                         with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, year))) as input_file:
                             df = pandas.read_csv(input_file, index_col=0)
@@ -281,10 +289,7 @@ def construct_templates(dataframes):
                             module_data['code'] = module
                             module_data['data'] = df.to_csv()
                             context['data']['modules'].append(module_data)
-            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('Lecturer Year and Subset Comparison', year))):
-                with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('Lecturer Year and Subset Comparison', year))) as input_file:
-                    df = pandas.read_csv(input_file, index_col=0)
-                    context['data']['subsets'] = df.to_csv()
+
 
 
             fpath = os.path.join(BUILD_DIR, '%s_lecturer_report - (%s).html' % (lecturer, year))

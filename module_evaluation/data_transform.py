@@ -3,6 +3,10 @@ import pandas
 
 from module_evaluation.config import LIKERT, EXCLUDE_COLUMNS, COLUMN_MAPPINGS
 
+def transform_for_output(data, index_title):
+    data = convert_to_likert_and_reduce(data)
+    return transpose_and_name_index(data, index_title)
+
 def convert_to_likert_and_reduce(data):
     # don't need 'Module' column
     if 'Module' in data.columns:
@@ -16,9 +20,9 @@ def convert_to_likert_and_reduce(data):
     return data_counts
 
 
-def transpose_and_name_index(data, index_name):
+def transpose_and_name_index(data, index_title):
     data_T = data.T
-    data_T.index.name = index_name
+    data_T.index.name = index_title
     return data_T
 
 
