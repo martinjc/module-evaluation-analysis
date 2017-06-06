@@ -271,12 +271,16 @@ def construct_templates(dataframes):
                 with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('%s Counts' % lecturer, year))) as input_file:
                     df = pandas.read_csv(input_file, index_col=0)
                     context['data']['counts'] = df.to_csv()
+            context['data']['modules'] = []
             if len(this_years_modules) > 1:
                 for module in this_years_modules:
-                    if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, YEARS2OCCURENCES[year]))):
-                        with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, YEARS2OCCURENCES[year]))) as input_file:
+                    if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, year))):
+                        with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, year))) as input_file:
                             df = pandas.read_csv(input_file, index_col=0)
-                            context['data'][module] = df.to_csv()
+                            module_data = {}
+                            module_data['code'] = module
+                            module_data['data'] = df.to_csv()
+                            context['data']['modules'].append(module_data)
             if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('Lecturer Year and Subset Comparison', year))):
                 with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('Lecturer Year and Subset Comparison', year))) as input_file:
                     df = pandas.read_csv(input_file, index_col=0)
@@ -293,7 +297,7 @@ def construct_templates(dataframes):
 if __name__ == '__main__':
     initialise_directories()
     dataframes = read_input_files()
-    modules2occurences = extract_and_write_module_data(dataframes)
-    lecturers2modules = extract_and_write_lecturer_data(dataframes)
-    extract_and_write_year_and_subset_data(dataframes)
+    # modules2occurences = extract_and_write_module_data(dataframes)
+    # lecturers2modules = extract_and_write_lecturer_data(dataframes)
+    # extract_and_write_year_and_subset_data(dataframes)
     construct_templates(dataframes)
