@@ -9,24 +9,24 @@
 </head>
 <body>
     <div id="evaluation_data" style="display:none;">
-<div id="data_average">{{data.all_module_percent_scores}}</div>
-<div id="data_module">{{data.percent_scores}}</div>
-<div id="data_agreement_comparison">{{data.percent_agreement_comparison}}</div>
-<div id="data_highlights">{{data.highlights}}</div>
-<div id="data_lowlights">{{data.lowlights}}</div>
+<div class="data_module" id="{{module}}_data">{{data.overall}}</div>
+<div class="meta_module" id="{{module}}_meta">{{meta_json}}</div>
+<div class="data_subsets">{{data.subsets}}</div>
+<div id="data_highlights">{{highlights}}</div>
+<div id="data_lowlights">{{lowlights}}</div>
     </div>
 
     <div class="page_a4">
         <section id="front_page">
-            <h1>{{module}} (n={{count}})</h1>
+            <h1>{{module}} (Academic Year {{year}}) (n={{count}})</h1>
             <div id="overall_evaluation">
                 <h2>Overall Evaluation</h2>
                 <p>Overall, I am satisfied with the quality of this module.</p>
                 <div id="overall_pie_vis"></div>
             </div>
             <div id="highlow">
+                <h2>Highlights and Lowlights</h2>
                 <div class="highlights">
-                    <h2>Highlights and Lowlights</h2>
                     <h3>Highest Scores</h3>
                     <table>
                         <thead>
@@ -43,11 +43,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for highlight in highlights %}
+                            {% for number in range(3) %}
                             <tr>
-                                <td>{{highlight.question}}</td>
-                                <td>{{highlight.agreement}}</td>
-                                <td>{{highlight.average}}</td>
+                                <td id="highlights_{{number}}_question"></td>
+                                <td id="highlights_{{number}}_agreement"></td>
+                                <td id="highlights_{{number}}_average"></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -70,11 +70,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for lowlight in lowlights %}
+                            {% for number in range(3) %}
                             <tr>
-                                <td>{{lowlight.question}}</td>
-                                <td>{{lowlight.agreement}}</td>
-                                <td>{{lowlight.average}}</td>
+                                <td id="lowlights_{{number}}_question"></td>
+                                <td id="lowlights_{{number}}_agreement"></td>
+                                <td id="lowlights_{{number}}_average"></td>
                             </tr>
                             {% endfor %}
                         </tbody>

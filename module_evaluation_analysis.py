@@ -306,6 +306,61 @@ def construct_templates(dataframes):
             with open(fpath, 'w') as f:
                 html = render_template('lecturer_evaluation_analysis.html', context)
                 f.write(html)
+    # get the list of modules we have data for
+    modules = get_module_list(dataframes)
+    # figure out which modules we have, and which occurences of each module
+    modules2occurences = get_module_occurence_dict(dataframes)
+    for year in YEARS2OCCURENCES.keys():
+        for module in modules:
+            if YEARS2OCCURENCES[year] in modules2occurences[module]:
+
+                module_data = pandas.DataFrame()
+                counts = pandas.DataFrame()
+                subsets = pandas.DataFrame()
+
+                if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence(module, year))):
+                    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence(module, year))) as input_file:
+                        module_data = pandas.read_csv(input_file, index_col=0)
+                if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Count', year))):
+                    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Count', year))) as input_file:
+                        counts = pandas.read_csv(input_file, index_col=0)
+                if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Year and Subset Comparison', year))):
+                    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Year and Subset Comparison', year))) as input_file:
+                        subsets = pandas.read_csv(input_file, index_col=0)
+
+                context = {}
+                context['module'] = module
+                context['data'] = {}
+                context['data']['overall'] = module_data.to_csv()
+                context['year'] = year
+                context['count'] = float(counts.ix[module])
+
+                if 'Agree' in module_data.columns:
+                    highlights = module_data.nlargest(3, 'Agree')[0:3]
+                    context['data']['highlights'] = highlights.to_csv()
+
+                    lowlights = module_data.nsmallest(3, 'Agree')[0:3]
+                    context['data']['lowlights'] = lowlights.to_csv()
+
+                subsets_needed = set()
+                subsets_needed.add('All Modules')
+
+                for subset in SUBSETS:
+                    if module in subset['subset']:
+                        subsets_needed.add(subset['title'])
+
+                meta_data = {}
+                meta_data['year'] = year
+                meta_data['subsets'] = list(subsets_needed)
+                meta_data['count'] = float(counts.ix[module])
+                context['meta_json'] = json.dumps(meta_data)
+                context['data']['subsets'] = subsets[list(subsets_needed)].to_csv()
+
+                fpath = os.path.join(BUILD_DIR, '%s_module_report - (%s).html' % (module, year))
+
+                with open(fpath, 'w') as f:
+                    html = render_template('module_evaluation_analysis.html', context)
+                    f.write(html)
 
 
 if __name__ == '__main__':
