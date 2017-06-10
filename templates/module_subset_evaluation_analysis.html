@@ -260,7 +260,6 @@
 
         var modules = JSON.parse(d3.select('#modules').html());
         modules.forEach(function(m){
-            console.log(m);
             var module_data = d3.csvParse(d3.select('#' + m + '_data')
                 .html());
             var column = 'Overall, I am satisfied with the quality of this module'
@@ -309,7 +308,6 @@
             module_data.forEach(function(d) {
                 d.diff = (+d.Agree) - +(d.average);
             });
-            console.log(module_data);
             var averagesChart = againstAverage()
                 .width(1100)
                 .height(600)
