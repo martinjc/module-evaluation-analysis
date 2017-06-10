@@ -1,6 +1,7 @@
 import os
 import json
 import pandas
+import argparse
 
 from tqdm import tqdm
 from weasyprint import HTML
@@ -25,22 +26,18 @@ def render_template(template_filename, context):
 def initialise_directories():
     # Create all the directories we'll need for output
     for directory in ['lecturers', 'modules', 'subsets']:
-        for datatype in ['csv', 'pdf', 'json']:
+        for datatype in ['csv', 'pdf']:
             to_create = os.path.join(OUTPUT_DIRECTORY, directory, datatype)
             if not os.path.exists(to_create):
                 os.makedirs(to_create)
 
 
-def read_input_files():
+def read_input_files(input_directory):
     # Read in all the data we have
     dataframes = []
 
     print('\nreading input data')
-
-    for year in YEARS2OCCURENCES.keys():
-        input_folder = os.path.join(os.getcwd(), INPUT_DIRECTORY, year)
-        print(input_folder)
-        dataframes.extend(read_input_dataframes(input_folder))
+    dataframes.extend(read_input_dataframes(input_directory))
     return dataframes
 
 
@@ -237,10 +234,25 @@ def construct_templates(dataframes):
 
 
 
+
+
 if __name__ == '__main__':
+
+
+    parser = argparse.ArgumentParser(description='Analysing Module Evaluation Feedback')
+    parser.add_argument('-i', '--input', help='Input directory with evaluation data', required=True, action='store')
+    parser.add_argument('-l', '--label', help='Label to add to output filenames', required=False, action='store', default='')
+    args = parser.parse_args()
+
     initialise_directories()
-    dataframes = read_input_files()
-    # modules2occurences = extract_and_write_module_data(dataframes)
-    # lecturers2modules = extract_and_write_lecturer_data(dataframes)
-    # extract_and_write_year_and_subset_data(dataframes)
+
+    input_directory = os.path.join(os.getcwd(), args.input)
+    label = args.label
+
+    dataframes = read_input_files(input_directory)
+
+    extract_and_write_module_data(dataframes, label)
+    extract_and_write_lecturer_data(dataframes, label)
+    extract_and_write_year_and_subset_data(dataframes, label)
+
     construct_templates(dataframes)

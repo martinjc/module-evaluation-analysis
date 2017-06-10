@@ -10,28 +10,13 @@ from module_evaluation.config import *
 from module_evaluation.io_utils import *
 from module_evaluation.data_transform import *
 
-
-def get_module_occurence_dict(dataframes):
-
-    modules = defaultdict(list)
-    for df in dataframes:
-        if 'Module' in df.columns:
-            df_modules = df['Module'].unique()
-            for m in df_modules:
-                m, o = m.split('/')
-                modules[m].append(o)
-    return modules
-
-
 def get_module_list(dataframes):
 
     modules = []
     for df in dataframes:
         if 'Module' in df.columns:
             df_modules = df['Module'].unique()
-            for m in df_modules:
-                m, o = m.split('/')
-                modules.append(m)
+            modules.extend(df_modules)
     return modules
 
 def get_module_columns(dataframes):
@@ -40,6 +25,7 @@ def get_module_columns(dataframes):
     if 'Module' in all_module_data.columns:
         del all_module_data['Module']
     return all_module_data.columns
+
 
 def combine_module_evaluation_data(dataframes):
 
@@ -54,75 +40,62 @@ def combine_module_evaluation_data(dataframes):
     return all_module_data
 
 
-def get_module_and_occurence_data_with_lecturer(dataframes, modules, occurence):
+def get_module_data_with_lecturer_data(dataframes, modules):
 
     all_module_data_frames = []
     for df in dataframes:
-
-        all_module_data_frames.append(df.loc[df['Module'].isin(['%s/%s' % (module, occurence) for module in modules])])
-
+        all_module_data_frames.append(df.loc[df['Module'].isin(modules)])
     all_module_data = pandas.concat(all_module_data_frames)
-
     return all_module_data
 
 
 
-def get_module_and_occurence_data(dataframes, modules, occurence):
+def get_module_data(dataframes, modules):
 
     all_module_data_frames = []
     for df in dataframes:
         # lecturer specific columns contain ':'
         non_lecturer_columns = [c for c in df.columns if c.find(':') == -1]
         ad_f = df[non_lecturer_columns].dropna()
-        all_module_data_frames.append(ad_f.loc[ad_f['Module'].isin(['%s/%s' % (module, occurence) for module in modules])])
+        all_module_data_frames.append(ad_f.loc[ad_f['Module'].isin(modules)])
 
     all_module_data = pandas.concat(all_module_data_frames)
     all_module_data.dropna(axis=1, inplace=True)
     return all_module_data
 
 
-def extract_and_write_module_data(dataframes):
+def extract_and_write_module_data(dataframes, label):
 
     # get the list of modules we have data for
     modules = get_module_list(dataframes)
-    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'json', 'modules.json'), 'w') as output_file:
-        json.dump(modules, output_file)
 
-    # figure out which modules we have, and which occurences of each module
-    modules2occurences = get_module_occurence_dict(dataframes)
-    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'json', 'module-occurences.json'), 'w') as output_file:
-        json.dump(modules2occurences, output_file)
-
+    # work out which columns we have
     module_columns = get_module_columns(dataframes)
-    module_comparison_data = {}
-    for year in YEARS2OCCURENCES.keys():
-        module_comparison_data[year] = pandas.DataFrame(index=module_columns)
 
-    module_counts = {}
-    for year in YEARS2OCCURENCES.keys():
-        module_counts[year] = pandas.DataFrame()
+    # store a comparison of the percentage agreement for each module
+    module_comparison_data = pandas.DataFrame(index=module_columns)
+
+    # store a count of the number of responses for each module
+    module_counts = pandas.DataFrame()
+
 
     print('\n\nwriting data for modules')
     # reduce the data for each module and write out
-    for module in tqdm(modules2occurences.keys()):
+    for module in tqdm(modules):
 
-        for year in tqdm(YEARS2OCCURENCES.keys()):
-            module_data = get_module_and_occurence_data(dataframes, [module], YEARS2OCCURENCES[year])
-            module_data_reduced = transform_for_output(module_data, 'question')
+        module_data = get_module_data(dataframes, [module])
+        module_data_reduced = transform_for_output(module_data, 'question')
 
-            module_counts[year].set_value(module, 'Count', len(module_data.index))
+        module_counts.set_value(module, 'Count', len(module_data.index))
 
-            if not module_data_reduced.empty:
-                if 'Agree' in module_data_reduced.columns:
-                    module_comparison_data[year][module] = module_data_reduced['Agree']
-                with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence(module, year)), 'w') as output_file:
-                    module_data_reduced.to_csv(output_file)
+        if not module_data_reduced.empty:
+            if 'Agree' in module_data_reduced.columns:
+                module_comparison_data[module] = module_data_reduced['Agree']
+            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label)), 'w') as output_file:
+                module_data_reduced.to_csv(output_file)
 
-    for year in YEARS2OCCURENCES.keys():
-        with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Count', year)),'w') as output_file:
-            module_counts[year].to_csv(output_file)
-        with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Comparison', year)), 'w') as output_file:
-            module_comparison_data[year].index_name = 'question'
-            module_comparison_data[year].to_csv(output_file)
-
-    return modules2occurences
+    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label)),'w') as output_file:
+        module_counts.to_csv(output_file)
+    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Comparison', label=label)), 'w') as output_file:
+        module_comparison_data.index_name = 'question'
+        module_comparison_data.to_csv(output_file)
