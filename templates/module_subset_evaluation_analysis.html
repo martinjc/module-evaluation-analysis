@@ -89,14 +89,6 @@
         </section>
     </div>
 
-    <div class="page_a4">
-        <section id="evaluation_comparison">
-            <h2>Question Breakdown</h2>
-            <p>The following shows the percentage breakdown of N/A, Disagree, Neither Agree nor Disagree and Agree for all evaluation questions, against the average for all school modules included in this evaluation</p>
-            <div id="overall_evaluation_vis"></div>
-        </section>
-    </div>
-
     {% for module in data.modules %}
 
     <div class="page_a4">
@@ -161,13 +153,6 @@
         </section>
     </div>
 
-    <div class="page_a4">
-        <section id="{{module.meta.code}}_evaluation_comparison">
-            <h2>Question Breakdown</h2>
-            <p>The following shows the percentage breakdown of N/A, Disagree, Neither Agree nor Disagree and Agree for all evaluation questions, against the average for all school modules included in this evaluation</p>
-            <div id="{{module.meta.code}}_overall_evaluation_vis"></div>
-        </section>
-    </div>
     {% endfor %}
 
 
@@ -187,7 +172,6 @@
 
     <script src="evaluation_pie.js"></script>
     <script src="highlowlights.js"></script>
-    <!--<script src="module_comparison.js"></script>-->
     <script src="against_average.js"></script>
     <script>
     (function() {
