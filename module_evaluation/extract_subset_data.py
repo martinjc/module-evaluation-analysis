@@ -24,8 +24,7 @@ def extract_and_write_year_and_subset_data(dataframes):
     # reduce the data for each subset of modules and write out
     for year in tqdm(YEARS2OCCURENCES.keys()):
         year_data = get_module_and_occurence_data(dataframes, get_module_list(dataframes), YEARS2OCCURENCES[year])
-        year_data_reduced = convert_to_likert_and_reduce(year_data)
-        year_data_reduced = transpose_and_name_index(year_data_reduced, 'question')
+        year_data_reduced = transform_for_output(year_data, 'question')
 
         if not year_data_reduced.empty:
             module_comparison_data[year]['All Modules'] = year_data_reduced['Agree']
