@@ -55,9 +55,13 @@ def construct_module_templates(dataframes, label):
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))) as input_file:
                 module_data = pandas.read_csv(input_file, index_col=0)
+                if 'Agree' in module_data.columns:
+                    module_data.sort_values('Agree', inplace=True, ascending=False)
+
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label))) as input_file:
                 counts = pandas.read_csv(input_file, index_col=0)
+
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))) as input_file:
                 subsets = pandas.read_csv(input_file, index_col=0)
@@ -70,11 +74,10 @@ def construct_module_templates(dataframes, label):
         context['count'] = float(counts.ix[module])
 
         if 'Agree' in module_data.columns:
-            highlights = module_data.nlargest(3, 'Agree')[0:3]
+            highlights = module_data.head(3)
             context['data']['highlights'] = highlights.to_csv()
 
-            lowlights = module_data.nsmallest(3, 'Agree')[0:3]
-            lowlights.sort_values('Agree', inplace=True, ascending=False)
+            lowlights = module_data.tail(3)
             context['data']['lowlights'] = lowlights.to_csv()
 
         subsets_needed = set()
@@ -124,9 +127,12 @@ def construct_lecturer_templates(dataframes, label):
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, label=label))) as input_file:
                 overall = pandas.read_csv(input_file, index_col=0)
+                overall.sort_values('Agree', inplace=True, ascending=False)
+
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))) as input_file:
                 counts = pandas.read_csv(input_file, index_col=0)
+
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))) as input_file:
                 subsets = pandas.read_csv(input_file, index_col=0)
@@ -148,6 +154,9 @@ def construct_lecturer_templates(dataframes, label):
             if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, module, label=label))):
                 with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, module, label=label))) as input_file:
                     df = pandas.read_csv(input_file, index_col=0)
+                    if 'Agree' in df.columns:
+                        df.sort_values('Agree', inplace=True, ascending=False)
+
                     module_data = {}
                     module_data['meta'] = {}
                     module_data['meta']['code'] = module
@@ -178,6 +187,7 @@ def construct_subset_comparison_templates(dataframes, label):
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_csv_filename(subset['title'], label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_csv_filename(subset['title'], label=label))) as input_file:
                 subset_data = pandas.read_csv(input_file, index_col=0)
+                subset_data.sort_values('Agree', inplace=True, ascending=False)
 
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))) as input_file:
@@ -196,13 +206,11 @@ def construct_subset_comparison_templates(dataframes, label):
         context['data']['overall'] = subset_data.to_csv()
 
         context['data']['average'] = comparison_data['All Modules'].to_csv(header=['Agree'], index_label='question')
-
         if 'Agree' in subset_data.columns:
-            highlights = subset_data.nlargest(3, 'Agree')[0:3]
+            highlights = subset_data.head(3)
             context['data']['highlights'] = highlights.to_csv()
 
-            lowlights = subset_data.nsmallest(3, 'Agree')[0:3]
-            lowlights.sort_values('Agree', inplace=True, ascending=False)
+            lowlights = subset_data.tail(3)
             context['data']['lowlights'] = lowlights.to_csv()
 
         context['data']['modules'] = []
@@ -212,6 +220,8 @@ def construct_subset_comparison_templates(dataframes, label):
             if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))):
                 with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))) as input_file:
                     df = pandas.read_csv(input_file, index_col=0)
+                    if 'Agree' in df.columns:
+                        df.sort_values('Agree', inplace=True, ascending=False)
 
                     module_data = {}
                     module_data['meta'] = {}
@@ -221,11 +231,10 @@ def construct_subset_comparison_templates(dataframes, label):
                     module_data['meta_json'] = json.dumps(module_data['meta'])
 
                     if 'Agree' in df.columns:
-                        highlights = df.nlargest(3, 'Agree')[0:3]
+                        highlights = df.head(3)
                         module_data['highlights'] = highlights.to_csv()
 
-                        lowlights = df.nsmallest(3, 'Agree')[0:3]
-                        lowlights.sort_values('Agree', inplace=True, ascending=False)
+                        lowlights = df.tail(3)
                         module_data['lowlights'] = lowlights.to_csv()
 
                     context['data']['modules'].append(module_data)
