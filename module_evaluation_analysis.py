@@ -41,198 +41,221 @@ def read_input_files(input_directory):
     return dataframes
 
 
-def construct_templates(dataframes):
+def construct_templates(dataframes, label):
 
     # figure out which lecturer data we have
     lecturers = get_lecturer_list(dataframes)
 
-    lecturers2modules = {}
+    lecturer2modules = {}
     # figure out which lecturer goes with which module data
     for lecturer in lecturers:
         lecturer_data = extract_lecturer_data(dataframes, lecturer)
-        lecturer_modules = get_module_occurence_dict([lecturer_data])
-        lecturers2modules[lecturer] = lecturer_modules
+        lecturer_modules = get_module_list([lecturer_data])
+        lecturer2modules[lecturer] = lecturer_modules
 
-    for year in YEARS2OCCURENCES.keys():
-        for lecturer, modules2occurences in lecturers2modules.items():
+    print('\n\nWriting Lecturer templates')
+    for lecturer, modules in tqdm(lecturer2modules.items()):
 
-            this_years_modules = []
+        context = {}
+        context['data'] = {}
+        context['lecturer'] = lecturer
+        context['label'] = label
+        context['modules'] = modules
 
-            for module, occurences in modules2occurences.items():
-                if YEARS2OCCURENCES[year] in occurences:
-                    this_years_modules.append(module)
+        subsets = pandas.DataFrame()
+        overall = pandas.DataFrame()
+        counts = pandas.DataFrame()
 
-            context = {}
-            context['data'] = {}
-            context['lecturer'] = lecturer
-            context['year'] = year
-            context['modules'] = this_years_modules
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, label=label))) as input_file:
+                overall = pandas.read_csv(input_file, index_col=0)
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))) as input_file:
+                counts = pandas.read_csv(input_file, index_col=0)
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))) as input_file:
+                subsets = pandas.read_csv(input_file, index_col=0)
 
-            subsets = pandas.DataFrame()
-            overall = pandas.DataFrame()
-            counts = pandas.DataFrame()
+        context['total'] = float(counts.ix['All'])
+        context['data']['overall'] = overall.to_csv()
+        context['data']['counts'] = counts.to_csv()
+        all_subsets = set()
+        all_subsets.add('All Lecturers')
 
-            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence(lecturer, year))):
-                with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence(lecturer, year))) as input_file:
-                    overall = pandas.read_csv(input_file, index_col=0)
-            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('%s Counts' % lecturer, year))):
-                with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('%s Counts' % lecturer, year))) as input_file:
-                    counts = pandas.read_csv(input_file, index_col=0)
-            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('Lecturer Year and Subset Comparison', year))):
-                with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_identifier_and_occurence('Lecturer Year and Subset Comparison', year))) as input_file:
-                    subsets = pandas.read_csv(input_file, index_col=0)
+        context['data']['modules'] = []
+        for module in modules:
+            module_subsets = ['All Lecturers']
+            for subset in SUBSETS:
+                if module in subset['subset']:
+                    module_subsets.append(subset['title'])
+                    all_subsets.add(subset['title'])
 
-            context['total'] = float(counts.ix['All'])
-            context['data']['overall'] = overall.to_csv()
-            context['data']['counts'] = counts.to_csv()
-            all_subsets = set()
-            all_subsets.add('All Lecturers')
+            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, module, label=label))):
+                with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, module, label=label))) as input_file:
+                    df = pandas.read_csv(input_file, index_col=0)
+                    module_data = {}
+                    module_data['meta'] = {}
+                    module_data['meta']['code'] = module
+                    module_data['data'] = df.to_csv()
+                    module_data['meta']['count'] = float(counts.ix[module])
+                    module_data['meta']['subsets'] = module_subsets
+                    module_data['meta_json'] = json.dumps(module_data['meta'])
+                    context['data']['modules'].append(module_data)
 
-            context['data']['modules'] = []
-            if len(this_years_modules) > 1:
-                for module in this_years_modules:
-                    subsets_needed = ['All Lecturers']
-                    for subset in SUBSETS:
-                        if module in subset['subset']:
-                            subsets_needed.append(subset['title'])
-                            all_subsets.add(subset['title'])
+        context['data']['subsets'] = subsets[list(all_subsets)].to_csv()
 
-                    if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, year))):
-                        with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_filename_lecturer_module_occurence(lecturer, module, year))) as input_file:
-                            df = pandas.read_csv(input_file, index_col=0)
-                            module_data = {}
-                            module_data['meta'] = {}
-                            module_data['meta']['code'] = module
-                            module_data['data'] = df.to_csv()
-                            module_data['meta']['count'] = float(counts.ix[module])
-                            module_data['meta']['subsets'] = subsets_needed
-                            module_data['meta_json'] = json.dumps(module_data['meta'])
-                            context['data']['modules'].append(module_data)
+        fpath = os.path.join(BUILD_DIR, '%s_lecturer_report - (%s).html' % (lecturer, label))
 
-            context['data']['subsets'] = subsets[list(all_subsets)].to_csv()
+        with open(fpath, 'w') as f:
+            html = render_template('lecturer_evaluation_analysis.html', context)
+            f.write(html)
 
-            fpath = os.path.join(BUILD_DIR, '%s_lecturer_report - (%s).html' % (lecturer, year))
 
-            with open(fpath, 'w') as f:
-                html = render_template('lecturer_evaluation_analysis.html', context)
-                f.write(html)
     # get the list of modules we have data for
     modules = get_module_list(dataframes)
-    # figure out which modules we have, and which occurences of each module
-    modules2occurences = get_module_occurence_dict(dataframes)
-    for year in YEARS2OCCURENCES.keys():
-        for module in modules:
-            if YEARS2OCCURENCES[year] in modules2occurences[module]:
 
-                module_data = pandas.DataFrame()
-                counts = pandas.DataFrame()
-                subsets = pandas.DataFrame()
+    print('\n\nWriting Module templates')
+    for module in tqdm(modules):
 
-                if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence(module, year))):
-                    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence(module, year))) as input_file:
-                        module_data = pandas.read_csv(input_file, index_col=0)
-                if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Count', year))):
-                    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Count', year))) as input_file:
-                        counts = pandas.read_csv(input_file, index_col=0)
-                if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Year and Subset Comparison', year))):
-                    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Year and Subset Comparison', year))) as input_file:
-                        subsets = pandas.read_csv(input_file, index_col=0)
+        module_data = pandas.DataFrame()
+        counts = pandas.DataFrame()
+        subsets = pandas.DataFrame()
 
-                context = {}
-                context['module'] = module
-                context['data'] = {}
-                context['data']['overall'] = module_data.to_csv()
-                context['year'] = year
-                context['count'] = float(counts.ix[module])
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))) as input_file:
+                module_data = pandas.read_csv(input_file, index_col=0)
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label))) as input_file:
+                counts = pandas.read_csv(input_file, index_col=0)
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))) as input_file:
+                subsets = pandas.read_csv(input_file, index_col=0)
 
-                if 'Agree' in module_data.columns:
-                    highlights = module_data.nlargest(3, 'Agree')[0:3]
-                    context['data']['highlights'] = highlights.to_csv()
+        context = {}
+        context['module'] = module
+        context['data'] = {}
+        context['data']['overall'] = module_data.to_csv()
+        context['label'] = label
+        context['count'] = float(counts.ix[module])
 
-                    lowlights = module_data.nsmallest(3, 'Agree')[0:3]
-                    context['data']['lowlights'] = lowlights.to_csv()
+        if 'Agree' in module_data.columns:
+            highlights = module_data.nlargest(3, 'Agree')[0:3]
+            context['data']['highlights'] = highlights.to_csv()
 
-                subsets_needed = set()
-                subsets_needed.add('All Modules')
+            lowlights = module_data.nsmallest(3, 'Agree')[0:3]
+            context['data']['lowlights'] = lowlights.to_csv()
 
-                for subset in SUBSETS:
-                    if module in subset['subset']:
-                        subsets_needed.add(subset['title'])
+        subsets_needed = set()
+        subsets_needed.add('All Modules')
 
-                meta_data = {}
-                meta_data['year'] = year
-                meta_data['subsets'] = list(subsets_needed)
-                meta_data['count'] = float(counts.ix[module])
-                context['meta_json'] = json.dumps(meta_data)
-                context['data']['subsets'] = subsets[list(subsets_needed)].to_csv()
+        for subset in SUBSETS:
+            if module in subset['subset']:
+                subsets_needed.add(subset['title'])
 
-                fpath = os.path.join(BUILD_DIR, '%s_module_report - (%s).html' % (module, year))
+        meta_data = {}
+        meta_data['label'] = label
+        meta_data['subsets'] = list(subsets_needed)
+        meta_data['count'] = float(counts.ix[module])
+        context['meta_json'] = json.dumps(meta_data)
+        context['data']['subsets'] = subsets[list(subsets_needed)].to_csv()
 
-                with open(fpath, 'w') as f:
-                    html = render_template('module_evaluation_analysis.html', context)
-                    f.write(html)
+        fpath = os.path.join(BUILD_DIR, '%s_module_report - (%s).html' % (module, label))
 
-    for subset in SUBSETS:
-        for year in YEARS2OCCURENCES.keys():
+        with open(fpath, 'w') as f:
+            html = render_template('module_evaluation_analysis.html', context)
+            f.write(html)
 
-            subset_data = pandas.DataFrame()
-            counts = pandas.DataFrame()
-            comparison_data = pandas.DataFrame()
+    print('\n\nWriting Subset templates')
+    for subset in tqdm(SUBSETS):
 
-            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence(subset['title'], year))):
-                with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_filename_identifier_and_occurence(subset['title'], year))) as input_file:
-                    subset_data = pandas.read_csv(input_file, index_col=0)
+        context = {}
+        subset_data = pandas.DataFrame()
+        counts = pandas.DataFrame()
+        comparison_data = pandas.DataFrame()
 
-            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Year and Subset Comparison', year))):
-                with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Year and Subset Comparison', year))) as input_file:
-                    comparison_data = pandas.read_csv(input_file, index_col=0)
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_csv_filename(subset['title'], label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'subsets', 'csv', construct_csv_filename(subset['title'], label=label))) as input_file:
+                subset_data = pandas.read_csv(input_file, index_col=0)
 
-            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Count', year))):
-                with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Count', year))) as input_file:
-                    counts = pandas.read_csv(input_file, index_col=0)
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))) as input_file:
+                comparison_data = pandas.read_csv(input_file, index_col=0)
 
-            context['title'] = subset['title']
-            context['modules'] = subset['subset']
-            context['year'] = year
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label))) as input_file:
+                counts = pandas.read_csv(input_file, index_col=0)
 
-
-            context['data'] = {}
-            context['data']['overall'] = subset_data.to_csv()
-
-            context['data']['agreements'] = comparison_data['All Modules'].to_csv()
-            context['data']['modules'] = []
-
-            for module in subset['subset']:
-
-                if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence(module, year))):
-                    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence(module, year))) as input_file:
-                        df = pandas.read_csv(input_file, index_col=0)
-
-                        module_data = {}
-                        module_data['meta'] = {}
-                        module_data['meta']['code'] = module
-                        module_data['data'] = df.to_csv()
-                        module_data['meta']['count'] = float(counts.ix[module])
-                        module_data['meta_json'] = json.dumps(module_data['meta'])
-
-                        if 'Agree' in df.columns:
-                            highlights = df.nlargest(3, 'Agree')[0:3]
-                            module_data['highlights'] = highlights.to_csv()
-
-                            lowlights = df.nsmallest(3, 'Agree')[0:3]
-                            module_data['lowlights'] = lowlights.to_csv()
-
-                        context['data']['modules'].append(module_data)
+        context['title'] = subset['title']
+        context['modules'] = subset['subset']
+        context['label'] = label
 
 
-            fpath = os.path.join(BUILD_DIR, '%s_subset_evaluation_analysis_report - (%s).html' % (subset['title'], year))
+        context['data'] = {}
+        context['data']['overall'] = subset_data.to_csv()
 
-            with open(fpath, 'w') as f:
-                html = render_template('module_subset_evaluation_analysis.html', context)
-                f.write(html)
+        context['data']['agreements'] = comparison_data['All Modules'].to_csv()
+
+        if 'Agree' in subset_data.columns:
+            highlights = subset_data.nlargest(3, 'Agree')[0:3]
+            context['highlights'] = highlights.to_csv()
+
+            lowlights = subset_data.nsmallest(3, 'Agree')[0:3]
+            context['lowlights'] = lowlights.to_csv()
+
+        context['data']['modules'] = []
+
+        for module in subset['subset']:
+
+            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))):
+                with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))) as input_file:
+                    df = pandas.read_csv(input_file, index_col=0)
+
+                    module_data = {}
+                    module_data['meta'] = {}
+                    module_data['meta']['code'] = module
+                    module_data['data'] = df.to_csv()
+                    module_data['meta']['count'] = float(counts.ix[module])
+                    module_data['meta_json'] = json.dumps(module_data['meta'])
+
+                    if 'Agree' in df.columns:
+                        highlights = df.nlargest(3, 'Agree')[0:3]
+                        module_data['highlights'] = highlights.to_csv()
+
+                        lowlights = df.nsmallest(3, 'Agree')[0:3]
+                        module_data['lowlights'] = lowlights.to_csv()
+
+                    context['data']['modules'].append(module_data)
 
 
+        fpath = os.path.join(BUILD_DIR, '%s_subset_evaluation_analysis_report - (%s).html' % (subset['title'], label))
 
+        with open(fpath, 'w') as f:
+            html = render_template('module_subset_evaluation_analysis.html', context)
+            f.write(html)
+
+    print('\n\nWriting Lecturer Comparison Template')
+
+    lecturer_comparison = pandas.DataFrame()
+    subsets = pandas.DataFrame()
+
+    if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))):
+        with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))) as input_file:
+            lecturer_comparison = pandas.read_csv(input_file, index_col=0)
+
+    if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))):
+        with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))) as input_file:
+            subsets = pandas.read_csv(input_file, index_col=0)
+
+    context = {}
+    context['data'] = {}
+    context['data']['comparison'] = lecturer_comparison.to_csv()
+    context['data']['subsets'] = subsets.to_csv()
+
+    fpath = os.path.join(BUILD_DIR, 'lecturer_evaluation_analysis_report - (%s).html' % (label))
+
+    with open(fpath, 'w') as f:
+        html = render_template('lecturer_evaluation_comparison.html', context)
+        f.write(html)
 
 
 
@@ -255,4 +278,4 @@ if __name__ == '__main__':
     extract_and_write_lecturer_data(dataframes, label)
     extract_and_write_year_and_subset_data(dataframes, label)
 
-    construct_templates(dataframes)
+    construct_templates(dataframes, label)
