@@ -185,6 +185,11 @@
         var average_data = d3.csvParse(d3.select('#average')
             .html());
 
+        average_data.forEach(function(d){
+            d.average = +d.Agree;
+        });
+        console.log(average_data);
+
         var column = 'Overall, I am satisfied with the quality of this module'
 
         function get_average(d) {
@@ -242,6 +247,18 @@
             d.diff = (+d.Agree) - +(d.average);
         });
 
+        var averages = [];
+        school_average = {
+            name: 'school_average',
+            title: 'School Average',
+            data: average_data,
+            fill: '#4169e1',
+            symbol: d3.symbol()
+                .type(d3.symbolDiamond)
+                .size(80),
+        }
+        averages.push(school_average);
+
         var averagesChart = againstAverage()
             .width(1100)
             .height(600)
@@ -251,11 +268,30 @@
                 left: 60,
                 right: 400,
             })
-            .value_label('Average over all modules in this group');
+            .value_label('Average over all modules in this group')
+            .averages(averages);
 
         var container = d3.select("#agreement_evaluation_vis")
             .datum(module_data)
             .call(averagesChart);
+
+        var group_average_data = module_data.map(function(d){
+            return {
+                question: d.question,
+                average: d.Agree,
+            };
+        });
+
+        var group_average = {
+            name: 'group_average',
+            title: 'Group Average',
+            data: group_average_data,
+            fill: '#008080',
+            symbol: d3.symbol()
+                .type(d3.symbolSquare)
+                .size(40),
+        }
+        averages.push(group_average);
 
 
         var modules = JSON.parse(d3.select('#modules').html());
@@ -308,6 +344,7 @@
             module_data.forEach(function(d) {
                 d.diff = (+d.Agree) - +(d.average);
             });
+
             var averagesChart = againstAverage()
                 .width(1100)
                 .height(600)
@@ -317,7 +354,8 @@
                     left: 60,
                     right: 400,
                 })
-                .value_label('Module Score');
+                .value_label('Module Score')
+                .averages(averages);
 
             var container = d3.select("#" + m + "_agreement_evaluation_vis")
                 .datum(module_data)

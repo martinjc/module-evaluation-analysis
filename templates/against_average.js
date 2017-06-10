@@ -17,6 +17,8 @@ function againstAverage() {
 
     var value_label;
 
+    var averages;
+
     var colourScale = d3.scaleLinear()
         .range(["hsla(0, 60%, 50%, 1)", "hsla(45, 70%, 60%, 1)", "hsla(90, 50%, 50%, 1)"]);
 
@@ -96,9 +98,11 @@ function againstAverage() {
 
             yScale.domain(questions);
 
-            xScale.domain([d3.min(data, function(d) {
-                return d.Agree < d.average ? d.Agree : d.average;
-            }), 1.05]);
+            // xScale.domain([d3.min(data, function(d) {
+            //     return d.Agree < d.average ? d.Agree : d.average;
+            // }), 1.05]);
+            //
+            xScale.domain([0, 1.05]);
 
             colourScale.domain([
                 d3.min(data, function(d) {
@@ -157,51 +161,56 @@ function againstAverage() {
                 .attr('stroke', 'black')
                 .attr('stroke-width', '0.5px');
 
-            var diamond = d3.symbol()
-                .type(d3.symbolDiamond)
-                .size(80);
+            var this_legend = legend
+                .append('g')
+                .attr('transform', 'translate(' + (averages.length * 150) + ',0)');
 
-            legend
-                .append('path')
-                .attr('d', diamond())
-                .attr('fill', '#eee')
-                .attr('stroke', 'black')
-                .attr('stroke-width', '0.5px');
-
-            legend
-                .append('text')
-                .attr('dx', '0.8em')
-                .attr('dy', '0.25em')
-                .text('School average');
-
-            legend
+            this_legend
                 .append('circle')
-                .attr('cx', 200)
+                .attr('cx', 0)
                 .attr('cy', 0)
                 .attr('r', 5)
                 .attr('fill', 'hsla(90, 50%, 50%, 1)');
 
-            legend
+            this_legend
                 .append('text')
-                .attr('x', 200)
-                .attr('y', 0)
                 .attr('dx', '0.8em')
                 .attr('dy', '0.25em')
                 .text(value_label);
 
-            var averages = svg.selectAll('.average')
-                .data(data)
-                .enter()
-                .append('g')
-                .attr('class', 'average')
-                .attr('transform', function(d) {
-                    return 'translate(' + xScale(d.average) + ',' + (yScale(d.question) + yScale.bandwidth() / 2) + ')';
-                })
-                .append('path')
-                .attr('d', diamond())
-                .attr('fill', '#eee')
-                .attr('stroke', 'black')
-                .attr('stroke-width', '0.5px');
+            averages.forEach(function(a, i) {
+                var name = a.name;
+                var title = a.title;
+                var symbol = a.symbol
+                var averages = svg.selectAll('.average_' + name)
+                    .data(a.data)
+                    .enter()
+                    .append('g')
+                    .attr('class', 'average')
+                    .attr('transform', function(d) {
+                        return 'translate(' + xScale(d.average) + ',' + (yScale(d.question) + yScale.bandwidth() / 2) + ')';
+                    })
+                    .append('path')
+                    .attr('d', symbol)
+                    .attr('fill', a.fill)
+                    .attr('stroke', 'black')
+                    .attr('stroke-width', '0.5px');
+
+                var this_legend = legend
+                    .append('g')
+                    .attr('transform', 'translate(' + (i * 150) + ',0)');
+                this_legend
+                    .append('path')
+                    .attr('d', symbol)
+                    .attr('fill', a.fill)
+                    .attr('stroke', 'black')
+                    .attr('stroke-width', '0.5px');
+                this_legend
+                    .append('text')
+                    .attr('dx', '0.8em')
+                    .attr('dy', '0.25em')
+                    .text(title);
+            });
 
             var scores = svg.selectAll('.scores')
                 .data(data)
@@ -242,12 +251,13 @@ function againstAverage() {
                 })
                 .attr('dx', function(d) {
                     if (d.diff < 0) {
-                        return '0.5em';
+                        return '0.2em';
                     } else {
-                        return '-0.5em';
+                        return '-0.2em';
                     }
                 })
-                .attr('dy', '0.25em')
+                .attr('fill', '#4169e1')
+                .attr('dy', '-0.35em')
                 .text(function(d) {
                     return pformat(d.average);
                 });
@@ -269,15 +279,15 @@ function againstAverage() {
                 })
                 .attr('dx', function(d) {
                     if (d.diff < 0) {
-                        return '-0.5em';
+                        return '-0.2em';
                     } else {
-                        return '0.5em';
+                        return '0.2em';
                     }
                 })
                 .attr('fill', function(d) {
                     return colourScale(d.diff);
                 })
-                .attr('dy', '0.25em')
+                .attr('dy', '-0.35em')
                 .text(function(d) {
                     return pformat(d.Agree);
                 });
@@ -289,6 +299,12 @@ function againstAverage() {
                 .call(wrap, margin.right);
 
         });
+    }
+
+    chart.averages = function(_) {
+        if (!arguments.length) return averages;
+        averages = _;
+        return chart;
     }
 
     chart.value_label = function(_) {
