@@ -1,6 +1,7 @@
 import os
 import json
 import pandas
+import shutil
 import argparse
 
 from tqdm import tqdm
@@ -17,7 +18,6 @@ from module_evaluation.extract_lecturer_data import *
 
 TEMPLATE_PATH = os.path.join(os.getcwd(), 'templates')
 TEMPLATE_ENVIRONMENT = Environment(autoescape=False, loader=FileSystemLoader(TEMPLATE_PATH), trim_blocks=False)
-TEMPLATE_FILES = ['style.css', 'evaluation_pie.js', 'against_average.js']
 
 def render_template(template_filename, context):
     return TEMPLATE_ENVIRONMENT.get_template(template_filename).render(context)
@@ -262,8 +262,17 @@ def construct_lecturer_comparison_template(dataframes, label):
 
 
 
-if __name__ == '__main__':
+def copy_template_files():
+    template_files = os.listdir(TEMPLATE_PATH)
+    template_files = [f for f in template_files if f.endswith('.css') or f.endswith('.js')]
+    print(template_files)
+    print('\n\nCopying template files')
+    for f in tqdm(template_files):
+        shutil.copy(os.path.join(TEMPLATE_PATH, f), BUILD_DIR)
 
+
+
+if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Analysing Module Evaluation Feedback')
     parser.add_argument('-i', '--input', help='Input directory with evaluation data', required=True, action='store')
