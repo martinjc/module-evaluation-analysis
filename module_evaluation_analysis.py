@@ -240,7 +240,7 @@ def construct_templates(dataframes):
 if __name__ == '__main__':
     initialise_directories()
     dataframes = read_input_files()
-    modules2occurences = extract_and_write_module_data(dataframes)
-    lecturers2modules = extract_and_write_lecturer_data(dataframes)
-    extract_and_write_year_and_subset_data(dataframes)
+    # modules2occurences = extract_and_write_module_data(dataframes)
+    # lecturers2modules = extract_and_write_lecturer_data(dataframes)
+    # extract_and_write_year_and_subset_data(dataframes)
     construct_templates(dataframes)
