@@ -1,9 +1,14 @@
 import os
+import json
 import pandas
+
+from tqdm import tqdm
 
 from collections import defaultdict
 
-from module_evaluation.config import LIKERT
+from module_evaluation.config import *
+from module_evaluation.io_utils import *
+from module_evaluation.data_transform import *
 
 
 def get_module_occurence_dict(dataframes):
@@ -76,18 +81,52 @@ def get_module_and_occurence_data(dataframes, modules, occurence):
     return all_module_data
 
 
+def extract_and_write_module_data(dataframes):
 
+    print('\nfound feedback data for these modules:')
+    # get the list of modules we have data for
+    modules = get_module_list(dataframes)
+    print(modules)
+    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'json', 'modules.json'), 'w') as output_file:
+        json.dump(modules, output_file)
 
-def generate_module_mean_comparison(all_module_data):
+    print('\nfound occurences for these modules:')
+    # figure out which modules we have, and which occurences of each module
+    modules2occurences = get_module_occurence_dict(dataframes)
+    print(modules2occurences)
+    with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'json', 'module-occurences.json'), 'w') as output_file:
+        json.dump(modules2occurences, output_file)
 
-    module_comparison = pandas.DataFrame(index=all_module_data.columns)
-    data_by_module = all_module_data.groupby('Module')
-    module_comparison['AllModules'] = all_module_data.mean()
+    module_columns = get_module_columns(dataframes)
+    module_comparison_data = {}
+    for year in YEARS2OCCURENCES.keys():
+        module_comparison_data[year] = pandas.DataFrame(index=module_columns)
 
-    for module in data_by_module.groups:
-        module_data = data_by_module.get_group(module)
-        del module_data['Module']
-        module_comparison[module] = module_data.mean()
+    module_counts = {}
+    for year in YEARS2OCCURENCES.keys():
+        module_counts[year] = pandas.DataFrame()
 
-    module_comparison.drop('Module', inplace=True)
-    return module_comparison
+    print('\n\nwriting reduced data for modules')
+    # reduce the data for each module and write out
+    for module in tqdm(modules2occurences.keys()):
+
+        for year in tqdm(YEARS2OCCURENCES.keys()):
+            module_data = get_module_and_occurence_data(dataframes, [module], YEARS2OCCURENCES[year])
+            module_data_reduced = transform_for_output(module_data, 'question')
+
+            module_counts[year].set_value(module, 'Count', len(module_data.index))
+
+            if not module_data_reduced.empty:
+                if 'Agree' in module_data_reduced.columns:
+                    module_comparison_data[year][module] = module_data_reduced['Agree']
+                with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence(module, year)), 'w') as output_file:
+                    module_data_reduced.to_csv(output_file)
+
+    for year in YEARS2OCCURENCES.keys():
+        with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Count', year)),'w') as output_file:
+            module_counts[year].to_csv(output_file)
+        with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_filename_identifier_and_occurence('Module Comparison', year)), 'w') as output_file:
+            module_comparison_data[year].index_name = 'question'
+            module_comparison_data[year].to_csv(output_file)
+
+    return modules2occurences

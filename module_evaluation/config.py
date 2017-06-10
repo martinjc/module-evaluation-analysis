@@ -1,4 +1,4 @@
-
+import os
 # Non numeric columns, or columns that don't ask questions answered by a likert scale
 # for now we exclude them from the analysis
 #
@@ -122,3 +122,8 @@ COLUMN_MAPPINGS = {
     "The range of the modules resources (on Learning Central and /or in paper form) effectively supported my learning": "The range of the module's resources effectively supported my learning",
     "The range of the module’s resources (on Learning Central and/or in paper form) has effectively supported my learning": "The range of the module's resources effectively supported my learning",
 }
+
+
+INPUT_DIRECTORY = 'input'
+BUILD_DIR = os.path.join(os.getcwd(), 'build')
+OUTPUT_DIRECTORY = os.path.join(os.getcwd(), 'output')
