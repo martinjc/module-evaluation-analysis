@@ -170,7 +170,9 @@ function againstAverage() {
                 .attr('cx', 0)
                 .attr('cy', 0)
                 .attr('r', 5)
-                .attr('fill', 'hsla(90, 50%, 50%, 1)');
+                .attr('fill', 'hsla(90, 50%, 50%, 1)')
+                .attr('stroke', 'black')
+                .attr('stroke-width', '0.5px');
 
             this_legend
                 .append('text')
@@ -226,7 +228,9 @@ function againstAverage() {
                 .attr('cy', function(d) {
                     return yScale(d.question) + yScale.bandwidth() / 2;
                 })
-                .attr('r', 5);
+                .attr('r', 5)
+                .attr('stroke', 'black')
+                .attr('stroke-width', '0.5px');
 
             var labels = svg.selectAll('.labels')
                 .data(data)
