@@ -15,6 +15,8 @@ function againstAverage() {
     var svg;
     var legend;
 
+    var value_label;
+
     var colourScale = d3.scaleLinear()
         .range(["hsla(0, 60%, 50%, 1)", "hsla(45, 70%, 60%, 1)", "hsla(90, 50%, 50%, 1)"]);
 
@@ -181,7 +183,7 @@ function againstAverage() {
                 .attr('y', 0)
                 .attr('dx', '0.8em')
                 .attr('dy', '0.25em')
-                .text('Score');
+                .text(value_label);
 
             var averages = svg.selectAll('.average')
                 .data(data)
@@ -285,6 +287,11 @@ function againstAverage() {
         });
     }
 
+    chart.value_label = function(_) {
+        if (!arguments.length) return value_label;
+        value_label = _;
+        return chart;
+    }
 
     chart.margin = function(_) {
         if (!arguments.length) return margin;
