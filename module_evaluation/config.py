@@ -42,12 +42,6 @@ PFMSDSYA = ['CMT108', 'CMT112', 'CMT103', 'CMT209', 'CMT212', 'CMT111', 'CMT202'
 PFMSISPA = ['CMT301', 'CMT306', 'CMT105', 'CMT213', 'CMT104', 'CMT202']
 PFMSCDJ = ['CMT112', 'CMT103', 'CMT212', 'CMT111', 'CMT206']
 
-# Mapping of years (potentially input folders?) to the module occurences
-# Using 'A' to mean an occurence when it's also used to denote semester is *super helpful*
-YEARS2OCCURENCES = {
-    '1516': '15A',
-    '1617': '16A'
-}
 
 # Mapping of the subsets above to a human-readable string. Also collects all subsets together
 # so they can all be referred to and analysed
@@ -106,9 +100,6 @@ SUBSETS = [
     },
 ]
 
-
-
-
 COLUMN_MAPPINGS = {
     "Feedback has helped me to clarify things i did not understand": "Feedback has helped me to clarify things I did not understand",
     "I feel confident in communicating the knowledge i have gained on the module": "I feel confident in communicating the knowledge I have gained on the module",
@@ -123,7 +114,5 @@ COLUMN_MAPPINGS = {
     "The range of the module’s resources (on Learning Central and/or in paper form) has effectively supported my learning": "The range of the module's resources effectively supported my learning",
 }
 
-
-INPUT_DIRECTORY = 'input'
 BUILD_DIR = os.path.join(os.getcwd(), 'build')
 OUTPUT_DIRECTORY = os.path.join(os.getcwd(), 'output')
