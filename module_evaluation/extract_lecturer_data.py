@@ -136,8 +136,8 @@ def extract_and_write_lecturer_data(dataframes, label):
                     lecturer_module_data_reduced.rename(index = lambda x:  x.replace(': ', ''), inplace=True)
                     lecturer_module_data_reduced.to_csv(output_file)
 
-    with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label)), 'w') as output_file:
-        lecturer_count.to_csv(output_file)
+        with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label)), 'w') as output_file:
+            lecturer_count.to_csv(output_file)
 
     with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label)), 'w') as output_file:
         lecturer_comparison_data.rename(index = lambda x:  x.replace(': ', ''), inplace=True)
