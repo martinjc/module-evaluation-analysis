@@ -6,7 +6,7 @@ function againstAverage() {
     var margin = {
         top: 40,
         bottom: 20,
-        left: 60,
+        left: 20,
         right: 200,
     };
 
@@ -98,11 +98,7 @@ function againstAverage() {
 
             yScale.domain(questions);
 
-            // xScale.domain([d3.min(data, function(d) {
-            //     return d.Agree < d.average ? d.Agree : d.average;
-            // }), 1.05]);
-            //
-            xScale.domain([0, 1.05]);
+            xScale.domain([-0.1, 1.1]);
 
             colourScale.domain([
                 d3.min(data, function(d) {
@@ -163,7 +159,7 @@ function againstAverage() {
 
             var this_legend = legend
                 .append('g')
-                .attr('transform', 'translate(' + (averages.length * 150) + ',0)');
+                .attr('transform', 'translate(' + (20 + (averages.length * 150)) + ',0)');
 
             this_legend
                 .append('circle')
@@ -200,7 +196,7 @@ function againstAverage() {
 
                 var this_legend = legend
                     .append('g')
-                    .attr('transform', 'translate(' + (i * 150) + ',0)');
+                    .attr('transform', 'translate(' + (20 + (i * 150)) + ',0)');
                 this_legend
                     .append('path')
                     .attr('d', symbol)
