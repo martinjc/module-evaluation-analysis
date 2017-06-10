@@ -188,14 +188,14 @@ def construct_subset_comparison_templates(dataframes, label):
                 counts = pandas.read_csv(input_file, index_col=0)
 
         context['title'] = subset['title']
-        context['modules'] = subset['subset']
+        context['modules'] = []
         context['label'] = label
 
 
         context['data'] = {}
         context['data']['overall'] = subset_data.to_csv()
 
-        context['data']['agreements'] = comparison_data['All Modules'].to_csv()
+        context['data']['average'] = comparison_data['All Modules'].to_csv(header=['Agree'], index_label='question')
 
         if 'Agree' in subset_data.columns:
             highlights = subset_data.nlargest(3, 'Agree')[0:3]
@@ -229,6 +229,7 @@ def construct_subset_comparison_templates(dataframes, label):
                         module_data['lowlights'] = lowlights.to_csv()
 
                     context['data']['modules'].append(module_data)
+                    context['modules'].append(module)
 
 
         fpath = os.path.join(BUILD_DIR, '%s Subset Evaluation Analysis Report - (%s).html' % (subset['title'], label))
