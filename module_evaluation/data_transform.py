@@ -34,8 +34,12 @@ def read_input_dataframes(input_dir):
         for column in EXCLUDE_COLUMNS:
             if column in df.columns:
                 del df[column]
+        # remove any unneccesary punctuation in column names
         df.rename(columns = lambda x:  x.replace('.', ''), inplace=True)
+        # replace any questions with their proper labels
         df.rename(columns=COLUMN_MAPPINGS, inplace=True)
+        # remove the occurence data from the module value
+        df['Module'] = df['Module'].apply(lambda x : x.split('/')[0])
     return dataframes
 
 
