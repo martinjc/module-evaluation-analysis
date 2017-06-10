@@ -41,8 +41,62 @@ def read_input_files(input_directory):
     return dataframes
 
 
-def construct_templates(dataframes, label):
+def construct_module_templates(dataframes, label):
+    # get the list of modules we have data for
+    modules = get_module_list(dataframes)
 
+    print('\n\nWriting Module templates')
+    for module in tqdm(modules):
+
+        module_data = pandas.DataFrame()
+        counts = pandas.DataFrame()
+        subsets = pandas.DataFrame()
+
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))) as input_file:
+                module_data = pandas.read_csv(input_file, index_col=0)
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label))) as input_file:
+                counts = pandas.read_csv(input_file, index_col=0)
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))) as input_file:
+                subsets = pandas.read_csv(input_file, index_col=0)
+
+        context = {}
+        context['module'] = module
+        context['data'] = {}
+        context['data']['overall'] = module_data.to_csv()
+        context['label'] = label
+        context['count'] = float(counts.ix[module])
+
+        if 'Agree' in module_data.columns:
+            highlights = module_data.nlargest(3, 'Agree')[0:3]
+            context['data']['highlights'] = highlights.to_csv()
+
+            lowlights = module_data.nsmallest(3, 'Agree')[0:3]
+            context['data']['lowlights'] = lowlights.to_csv()
+
+        subsets_needed = set()
+        subsets_needed.add('All Modules')
+
+        for subset in SUBSETS:
+            if module in subset['subset']:
+                subsets_needed.add(subset['title'])
+
+        meta_data = {}
+        meta_data['label'] = label
+        meta_data['subsets'] = list(subsets_needed)
+        meta_data['count'] = float(counts.ix[module])
+        context['meta_json'] = json.dumps(meta_data)
+        context['data']['subsets'] = subsets[list(subsets_needed)].to_csv()
+
+        fpath = os.path.join(BUILD_DIR, '%s Module Report - (%s).html' % (module, label))
+
+        with open(fpath, 'w') as f:
+            html = render_template('module_evaluation_analysis.html', context)
+            f.write(html)
+
+def construct_lecturer_templates(dataframes, label):
     # figure out which lecturer data we have
     lecturers = get_lecturer_list(dataframes)
 
@@ -104,67 +158,14 @@ def construct_templates(dataframes, label):
 
         context['data']['subsets'] = subsets[list(all_subsets)].to_csv()
 
-        fpath = os.path.join(BUILD_DIR, '%s_lecturer_report - (%s).html' % (lecturer, label))
+        fpath = os.path.join(BUILD_DIR, '%s Lecturer Report - (%s).html' % (lecturer, label))
 
         with open(fpath, 'w') as f:
             html = render_template('lecturer_evaluation_analysis.html', context)
             f.write(html)
 
 
-    # get the list of modules we have data for
-    modules = get_module_list(dataframes)
-
-    print('\n\nWriting Module templates')
-    for module in tqdm(modules):
-
-        module_data = pandas.DataFrame()
-        counts = pandas.DataFrame()
-        subsets = pandas.DataFrame()
-
-        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))):
-            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename(module, label=label))) as input_file:
-                module_data = pandas.read_csv(input_file, index_col=0)
-        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label))):
-            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Count', label=label))) as input_file:
-                counts = pandas.read_csv(input_file, index_col=0)
-        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))):
-            with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))) as input_file:
-                subsets = pandas.read_csv(input_file, index_col=0)
-
-        context = {}
-        context['module'] = module
-        context['data'] = {}
-        context['data']['overall'] = module_data.to_csv()
-        context['label'] = label
-        context['count'] = float(counts.ix[module])
-
-        if 'Agree' in module_data.columns:
-            highlights = module_data.nlargest(3, 'Agree')[0:3]
-            context['data']['highlights'] = highlights.to_csv()
-
-            lowlights = module_data.nsmallest(3, 'Agree')[0:3]
-            context['data']['lowlights'] = lowlights.to_csv()
-
-        subsets_needed = set()
-        subsets_needed.add('All Modules')
-
-        for subset in SUBSETS:
-            if module in subset['subset']:
-                subsets_needed.add(subset['title'])
-
-        meta_data = {}
-        meta_data['label'] = label
-        meta_data['subsets'] = list(subsets_needed)
-        meta_data['count'] = float(counts.ix[module])
-        context['meta_json'] = json.dumps(meta_data)
-        context['data']['subsets'] = subsets[list(subsets_needed)].to_csv()
-
-        fpath = os.path.join(BUILD_DIR, '%s_module_report - (%s).html' % (module, label))
-
-        with open(fpath, 'w') as f:
-            html = render_template('module_evaluation_analysis.html', context)
-            f.write(html)
-
+def construct_subset_comparison_templates(dataframes, label):
     print('\n\nWriting Subset templates')
     for subset in tqdm(SUBSETS):
 
@@ -227,14 +228,16 @@ def construct_templates(dataframes, label):
                     context['data']['modules'].append(module_data)
 
 
-        fpath = os.path.join(BUILD_DIR, '%s_subset_evaluation_analysis_report - (%s).html' % (subset['title'], label))
+        fpath = os.path.join(BUILD_DIR, '%s Subset Evaluation Analysis Report - (%s).html' % (subset['title'], label))
 
         with open(fpath, 'w') as f:
             html = render_template('module_subset_evaluation_analysis.html', context)
             f.write(html)
 
-    print('\n\nWriting Lecturer Comparison Template')
 
+def construct_lecturer_comparison_template(dataframes, label):
+
+    print('\n\nWriting Lecturer Comparison Template')
     lecturer_comparison = pandas.DataFrame()
     subsets = pandas.DataFrame()
 
@@ -251,7 +254,7 @@ def construct_templates(dataframes, label):
     context['data']['comparison'] = lecturer_comparison.to_csv()
     context['data']['subsets'] = subsets.to_csv()
 
-    fpath = os.path.join(BUILD_DIR, 'lecturer_evaluation_analysis_report - (%s).html' % (label))
+    fpath = os.path.join(BUILD_DIR, 'Lecturer Evaluation Analysis Report - (%s).html' % (label))
 
     with open(fpath, 'w') as f:
         html = render_template('lecturer_evaluation_comparison.html', context)
@@ -278,4 +281,9 @@ if __name__ == '__main__':
     extract_and_write_lecturer_data(dataframes, label)
     extract_and_write_year_and_subset_data(dataframes, label)
 
-    construct_templates(dataframes, label)
+    construct_lecturer_templates(dataframes, label)
+    construct_module_templates(dataframes, label)
+    construct_subset_comparison_templates(dataframes, label)
+    construct_lecturer_comparison_template(dataframes, label)
+
+    copy_template_files()
