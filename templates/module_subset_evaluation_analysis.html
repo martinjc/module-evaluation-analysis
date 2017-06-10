@@ -9,16 +9,22 @@
 </head>
 <body>
     <div id="evaluation_data" style="display:none;">
-<div class="data_module" id="{{module}}_data">{{data.overall}}</div>
-<div class="meta_module" id="{{module}}_meta">{{meta_json}}</div>
-<div class="data_subsets">{{data.subsets}}</div>
+<div class="data_overall" id="subset_data">{{data.overall}}</div>
+<div class="meta" id="meta">{{meta_json}}</div>
 <div id="data_highlights">{{data.highlights}}</div>
 <div id="data_lowlights">{{data.lowlights}}</div>
+<div class="agreements" id="module_agreements">{{data.agreements}}</div>
+{% for module in data.modules %}
+<div class="data_module" id="{{module.meta.code}}_data">{{module.data}}</div>
+<div class="data_highlights-module" id="{{module.meta.code}}_highlights">{{module.highlights}}</div>
+<div class="data_lowlights-module" id="{{module.meta.code}}_lowlights">{{module.lowlights}}</div>
+<div class="meta_module" id="{{module.meta.code}}_meta">{{module.meta_json}}</div>
+{% endfor %}
     </div>
 
     <div class="page_a4">
         <section id="front_page">
-            <h1>{{module}} (Academic Year {{year}}) (n={{count}})</h1>
+            <h1>{{subset}} (Academic Year {{year}})</h1>
             <div id="overall_evaluation">
                 <h2>Overall Evaluation</h2>
                 <p>Overall, I am satisfied with the quality of this module.</p>
