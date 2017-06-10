@@ -245,24 +245,26 @@ def construct_lecturer_comparison_template(dataframes, label):
     lecturer_comparison = pandas.DataFrame()
     subsets = pandas.DataFrame()
 
-    if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))):
-        with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))) as input_file:
-            lecturer_comparison = pandas.read_csv(input_file, index_col=0)
+    for i in tqdm(range(1)):
 
-    if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))):
-        with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))) as input_file:
-            subsets = pandas.read_csv(input_file, index_col=0)
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))) as input_file:
+                lecturer_comparison = pandas.read_csv(input_file, index_col=0)
 
-    context = {}
-    context['data'] = {}
-    context['data']['comparison'] = lecturer_comparison.to_csv()
-    context['data']['subsets'] = subsets.to_csv()
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))) as input_file:
+                subsets = pandas.read_csv(input_file, index_col=0)
 
-    fpath = os.path.join(BUILD_DIR, 'Lecturer Evaluation Analysis Report - (%s).html' % (label))
+        context = {}
+        context['data'] = {}
+        context['data']['comparison'] = lecturer_comparison.to_csv()
+        context['data']['subsets'] = subsets.to_csv()
 
-    with open(fpath, 'w') as f:
-        html = render_template('lecturer_evaluation_comparison.html', context)
-        f.write(html)
+        fpath = os.path.join(BUILD_DIR, 'Lecturer Evaluation Analysis Report - (%s).html' % (label))
+
+        with open(fpath, 'w') as f:
+            html = render_template('lecturer_evaluation_comparison.html', context)
+            f.write(html)
 
 
 
