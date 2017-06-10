@@ -198,10 +198,10 @@ def construct_subset_comparison_templates(dataframes, label):
 
         if 'Agree' in subset_data.columns:
             highlights = subset_data.nlargest(3, 'Agree')[0:3]
-            context['highlights'] = highlights.to_csv()
+            context['data']['highlights'] = highlights.to_csv()
 
             lowlights = subset_data.nsmallest(3, 'Agree')[0:3]
-            context['lowlights'] = lowlights.to_csv()
+            context['data']['lowlights'] = lowlights.to_csv()
 
         context['data']['modules'] = []
 
@@ -265,7 +265,6 @@ def construct_lecturer_comparison_template(dataframes, label):
 def copy_template_files():
     template_files = os.listdir(TEMPLATE_PATH)
     template_files = [f for f in template_files if f.endswith('.css') or f.endswith('.js')]
-    print(template_files)
     print('\n\nCopying template files')
     for f in tqdm(template_files):
         shutil.copy(os.path.join(TEMPLATE_PATH, f), BUILD_DIR)
