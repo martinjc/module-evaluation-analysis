@@ -23,17 +23,26 @@ polyline {
     page-break-after: always;
 }
 
-#front-page {
+
+/*#front_page {
     display: flex;
     flex-direction: row;
+}*/
+
+#front_page ul {
+    list-style: none;
 }
 
-#overall_evaluation {
+#front_page ul li {
+    display: inline;
+}
+
+.overall_evaluation {
     float: left;
     width: 45%;
 }
 
-#highlow {
+.highlow {
     padding-left: 10px;
     border-left: 1px #222 solid;
     float: right;
@@ -67,6 +76,7 @@ table {
 
 td {
     text-align: center;
+    text-shadow: -0.2px -0.2px 0 #000, 0.2px -0.2px 0 #000, -0.2px 0.2px 0 #000, 0.2px 0.2px 0 #000;
 }
 
 th:first-child, td:first-child {
