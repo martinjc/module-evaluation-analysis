@@ -250,7 +250,8 @@
                 bottom: 20,
                 left: 60,
                 right: 400,
-            });
+            })
+            .value_label('Average over all modules in this group');
 
         var container = d3.select("#agreement_evaluation_vis")
             .datum(module_data)
@@ -317,7 +318,8 @@
                     bottom: 20,
                     left: 60,
                     right: 400,
-                });
+                })
+                .value_label('Module Score');
 
             var container = d3.select("#" + m + "_agreement_evaluation_vis")
                 .datum(module_data)
