@@ -32,13 +32,12 @@ function againstAverage() {
             var lineHeight = 1.1;
             var y = text.attr("y");
             var x = text.attr("x");
-            var dy = parseFloat(text.attr("dy"));
-            var dx = parseFloat(text.attr("dx"));
+            var dy = parseFloat(text.attr("dy") || 0);
+            var dx = parseFloat(text.attr("dx") || 0);
             var tspan = text.text(null)
                 .append("tspan")
                 .attr("x", x)
                 .attr("y", y)
-                .attr("dy", dy + "em");
             while (word = words.pop()) {
                 line.push(word);
                 tspan.text(line.join(" "));
@@ -50,9 +49,14 @@ function againstAverage() {
                     tspan = text.append("tspan")
                         .attr("x", x)
                         .attr("y", y)
-                        .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                        .attr("dy", "1em")
+                        .attr("dx", dx + "em")
                         .text(word);
+                    lineNumber += 1
                 }
+            }
+            if (lineNumber > 0) {
+                text.attr('dy', (-1 * ((lineNumber / 2) - .25)) + "em");
             }
         });
     }

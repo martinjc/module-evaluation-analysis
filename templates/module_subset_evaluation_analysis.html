@@ -24,7 +24,7 @@
 
     <div class="page_a4">
         <section id="front_page">
-            <h1>{{title}} (Academic Year {{label}})</h1>
+            <h1>{{title}} Academic Year {{label}}</h1>
             <ul>
                 {% for module in modules %}
                     <li>{{module}},</li>
@@ -32,7 +32,7 @@
             </ul>
             <div class="overall_evaluation">
                 <h2>Overall Evaluation</h2>
-                <p>Overall, I am satisfied with the quality of this module.</p>
+                <p>Average of 'Overall, I am satisfied with the quality of this module.' over all modules in this group</p>
                 <div id="overall_pie_vis"></div>
             </div>
             <div class="highlow">
@@ -93,7 +93,7 @@
 
     <div class="page_a4">
         <section id="{{module.meta.code}}_module_page">
-            <h1>{{module.meta.code}} (Academic Year {{label}})</h1>
+            <h1>{{module.meta.code}} - Academic Year {{label}} (n = {{module.meta.count|int}})</h1>
             <div class="overall_evaluation" id="{{module.meta.code}}_overall">
                 <h2>Overall Evaluation</h2>
                 <p>Overall, I am satisfied with the quality of this module.</p>
