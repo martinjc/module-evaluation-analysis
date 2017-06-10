@@ -91,7 +91,7 @@ function againstAverage() {
             yScale.domain(questions);
 
             xScale.domain([d3.min(data, function(d) {
-                return d.module < d.average ? d.module : d.average;
+                return d.Agree < d.average ? d.Agree : d.average;
             }), 1.05]);
 
             colourScale.domain([
@@ -134,7 +134,7 @@ function againstAverage() {
                 .append('path')
                 .attr('d', function(d) {
                     var height = yScale(d.question) + yScale.bandwidth() / 2;
-                    var end_point = [d.diff > 0 ? xScale(d.module) - 5 : xScale(d.module) + 5, height];
+                    var end_point = [d.diff > 0 ? xScale(d.Agree) - 5 : xScale(d.Agree) + 5, height];
                     var start_point = [xScale(d.average), height];
                     var main_line = "M" + end_point[0] + "," + end_point[1] + " L" + start_point[0] + "," + start_point[1];
                     if (d.diff > 0) {
@@ -181,7 +181,7 @@ function againstAverage() {
                 .attr('y', 0)
                 .attr('dx', '0.8em')
                 .attr('dy', '0.25em')
-                .text('Lecturer score');
+                .text('Score');
 
             var averages = svg.selectAll('.average')
                 .data(data)
@@ -206,7 +206,7 @@ function againstAverage() {
                     return colourScale(d.diff);
                 })
                 .attr('cx', function(d) {
-                    return xScale(d.module);
+                    return xScale(d.Agree);
                 })
                 .attr('cy', function(d) {
                     return yScale(d.question) + yScale.bandwidth() / 2;
@@ -249,7 +249,7 @@ function againstAverage() {
             labels
                 .append('text')
                 .attr('x', function(d) {
-                    return xScale(d.module);
+                    return xScale(d.Agree);
                 })
                 .attr('y', function(d) {
                     return yScale(d.question) + yScale.bandwidth() / 2;
@@ -273,7 +273,7 @@ function againstAverage() {
                 })
                 .attr('dy', '0.25em')
                 .text(function(d) {
-                    return pformat(d.module);
+                    return pformat(d.Agree);
                 });
 
             svg.select('.y.axis')

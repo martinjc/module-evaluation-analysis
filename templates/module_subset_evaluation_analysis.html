@@ -188,7 +188,7 @@
     <script src="evaluation_pie.js"></script>
     <script src="highlowlights.js"></script>
     <!--<script src="module_comparison.js"></script>-->
-    <!--<script src="against_average.js"></script>-->
+    <script src="against_average.js"></script>
     <script>
     (function() {
 
@@ -201,9 +201,16 @@
         var average_data = d3.csvParse(d3.select('#average')
             .html());
 
-        console.log(average_data);
-
         var column = 'Overall, I am satisfied with the quality of this module'
+
+        function get_average(d) {
+            d.average = +average_data.filter(function(a){
+                return a.question === d.question;
+            })[0].Agree;
+            d.Agree = +d.Agree;
+        }
+
+        module_data.forEach(get_average);
 
         this_data = []
         module_data.forEach(function(d) {
@@ -212,9 +219,10 @@
             }
         });
 
+
         columns = module_data.columns.splice(1);
 
-        var chart = evaluationPie()
+        var piechart = evaluationPie()
             .width(600)
             .height(400)
             .margin({
@@ -227,14 +235,7 @@
 
         var container = d3.select("#overall_pie_vis")
             .datum(this_data)
-            .call(chart);
-
-        function get_average(d) {
-            d.average = +average_data.filter(function(a){
-                return a.question === d.question;
-            })[0].Agree;
-            d.Agree = +d.Agree;
-        }
+            .call(piechart);
 
         var highlights_data = d3.csvParse(d3.select('#data_highlights').html());
         var lowlights_data = d3.csvParse(d3.select('#data_lowlights').html());
@@ -253,9 +254,28 @@
             .datum(lowlights_data)
             .call(ltable);
 
+        module_data.forEach(function(d) {
+            d.diff = (+d.Agree) - +(d.average);
+        });
+
+        var averagesChart = againstAverage()
+            .width(1100)
+            .height(600)
+            .margin({
+                top: 40,
+                bottom: 20,
+                left: 60,
+                right: 400,
+            });
+
+        var container = d3.select("#agreement_evaluation_vis")
+            .datum(module_data)
+            .call(averagesChart);
+
 
         var modules = JSON.parse(d3.select('#modules').html());
         modules.forEach(function(m){
+            console.log(m);
             var module_data = d3.csvParse(d3.select('#' + m + '_data')
                 .html());
             var column = 'Overall, I am satisfied with the quality of this module'
@@ -293,9 +313,6 @@
             var htable = highlowTable();
             var ltable = highlowTable();
 
-            var highlights_table = d3.select('#' + m +  '_highlow .highlights table tbody');
-            console.log(highlights_table)
-
             var highlights_table = d3.select('#' + m +  '_highlow .highlights table tbody')
                 .datum(highlights_data)
                 .call(htable);
@@ -303,6 +320,24 @@
             var lowlights_table = d3.select('#' + m +  '_highlow  .lowlights table tbody')
                 .datum(lowlights_data)
                 .call(ltable);
+            module_data.forEach(get_average);
+            module_data.forEach(function(d) {
+                d.diff = (+d.Agree) - +(d.average);
+            });
+            console.log(module_data);
+            var averagesChart = againstAverage()
+                .width(1100)
+                .height(600)
+                .margin({
+                    top: 40,
+                    bottom: 20,
+                    left: 60,
+                    right: 400,
+                });
+
+            var container = d3.select("#" + m + "_agreement_evaluation_vis")
+                .datum(module_data)
+                .call(averagesChart);
 
         });
     })();
