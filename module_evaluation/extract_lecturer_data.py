@@ -114,6 +114,7 @@ def extract_and_write_lecturer_data(dataframes, label):
         lecturer_count = pandas.DataFrame()
         lecturer_count.index.name = 'Module'
 
+        lecturer_data = extract_lecturer_data(dataframes, lecturer)
         lecturer_data_reduced = transform_for_output(lecturer_data, 'question')
 
         lecturer_count.set_value('All', 'Count', len(lecturer_data.index))
