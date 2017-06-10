@@ -74,6 +74,7 @@ def construct_module_templates(dataframes, label):
             context['data']['highlights'] = highlights.to_csv()
 
             lowlights = module_data.nsmallest(3, 'Agree')[0:3]
+            lowlights.sort_values('Agree', inplace=True, ascending=False)
             context['data']['lowlights'] = lowlights.to_csv()
 
         subsets_needed = set()
@@ -201,6 +202,7 @@ def construct_subset_comparison_templates(dataframes, label):
             context['data']['highlights'] = highlights.to_csv()
 
             lowlights = subset_data.nsmallest(3, 'Agree')[0:3]
+            lowlights.sort_values('Agree', inplace=True, ascending=False)
             context['data']['lowlights'] = lowlights.to_csv()
 
         context['data']['modules'] = []
@@ -223,6 +225,7 @@ def construct_subset_comparison_templates(dataframes, label):
                         module_data['highlights'] = highlights.to_csv()
 
                         lowlights = df.nsmallest(3, 'Agree')[0:3]
+                        lowlights.sort_values('Agree', inplace=True, ascending=False)
                         module_data['lowlights'] = lowlights.to_csv()
 
                     context['data']['modules'].append(module_data)
