@@ -83,17 +83,13 @@ def get_module_and_occurence_data(dataframes, modules, occurence):
 
 def extract_and_write_module_data(dataframes):
 
-    print('\nfound feedback data for these modules:')
     # get the list of modules we have data for
     modules = get_module_list(dataframes)
-    print(modules)
     with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'json', 'modules.json'), 'w') as output_file:
         json.dump(modules, output_file)
 
-    print('\nfound occurences for these modules:')
     # figure out which modules we have, and which occurences of each module
     modules2occurences = get_module_occurence_dict(dataframes)
-    print(modules2occurences)
     with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'json', 'module-occurences.json'), 'w') as output_file:
         json.dump(modules2occurences, output_file)
 
@@ -106,7 +102,7 @@ def extract_and_write_module_data(dataframes):
     for year in YEARS2OCCURENCES.keys():
         module_counts[year] = pandas.DataFrame()
 
-    print('\n\nwriting reduced data for modules')
+    print('\n\nwriting data for modules')
     # reduce the data for each module and write out
     for module in tqdm(modules2occurences.keys()):
 

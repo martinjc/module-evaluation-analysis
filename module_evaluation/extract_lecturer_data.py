@@ -88,10 +88,8 @@ def extract_lecturer_data(dataframes, lecturer):
 
 def extract_and_write_lecturer_data(dataframes):
 
-    print('\nfound data for these lecturers:')
     # figure out which lecturer data we have
     lecturers = get_lecturer_list(dataframes)
-    print(lecturers)
     with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'json', 'lecturers.json'), 'w') as output_file:
         json.dump(lecturers, output_file)
 
@@ -110,7 +108,7 @@ def extract_and_write_lecturer_data(dataframes):
     for year in YEARS2OCCURENCES.keys():
         lecturer_comparison_data[year] = pandas.DataFrame(index=lecturer_columns)
 
-    print('\n\nwriting reduced lecturer data')
+    print('\n\nwriting lecturer data')
     # reduce the data for each lecturer, and each module for each lecturer, and write out
     for lecturer in tqdm(lecturers2modules.keys()):
 
