@@ -32,7 +32,7 @@ function evaluationPie() {
         return d.data.key;
     }
 
-    function wrap(text, width) {
+    var wrap = function(text, width) {
         text.each(function() {
             var text = d3.select(this);
             var words = text.text()
@@ -68,7 +68,7 @@ function evaluationPie() {
         });
     }
 
-    function getTransformation(transform) {
+    var getTransformation = function(transform) {
         /*
          * This code comes from a StackOverflow answer to a question looking
          * to replace the d3.transform() functionality from v3.
@@ -103,7 +103,7 @@ function evaluationPie() {
         };
     }
 
-    function arrangeLabels() {
+    var arrangeLabels = function() {
         var move = 1;
         while (move > 0) {
             move = 0;
@@ -243,7 +243,7 @@ function evaluationPie() {
             polyline.enter()
                 .append("polyline")
                 .attr("points", function(d, j) {
-                    var label = d3.select('#l-' + i + j);
+                    var label = svg.select('#l-' + i + j);
                     var transform = getTransformation(label.attr("transform"));
                     var pos = labelArc.centroid(d);
                     pos[0] = transform.translateX + 5;
@@ -252,7 +252,7 @@ function evaluationPie() {
                     mid[1] = transform.translateY;
                     return [arc.centroid(d), mid, pos];
                 });
-        })
+        });
     }
 
     pieChart.margin = function(_) {
