@@ -12,15 +12,16 @@
     <div id="evaluation_data" style="display:none;">
 <div id="data_subsets">{{data.subsets}}</div>
 <div id="data_overall">{{data.overall}}</div>
+<div id="modules">{{modules|tojson}}</div>
 {% for module in data.modules %}
-<div class="data_module" id="{{module.meta.code}}">{{module.data}}</div>
-<div class="meta_module" id="{{module.meta.code}}">{{module.meta_json}}</div>
+<div class="data_module" id="{{module.meta.code}}_data">{{module.data}}</div>
+<div class="meta_module" id="{{module.meta.code}}_meta">{{module.meta_json}}</div>
 {% endfor %}
     </div>
 
     <div class="page_a4">
         <section id="front_page">
-            <h1>{{lecturer}} (Academic Year {{year}}) (n={{total}})</h1>
+            <h1>{{lecturer}} - Academic Year {{year}} (n = {{total|int}})</h1>
             <div id="teaching_evaluation">
                 <div class="wrapper">
                     <div class="pie" id="pie_vis0">
@@ -42,22 +43,22 @@
     {% for module in data.modules %}
     <div class="page_a4">
         <section id="module-page">
-            <h1>{{module.meta.code}} (n={{module.meta.count}})</h1>
+            <h1>{{module.meta.code}} (n = {{module.meta.count|int}})</h1>
             <div id="teaching_evaluation">
                 <div class="wrapper">
-                    <div class="pie" id="{{module.code}}_pie_vis0">
+                    <div class="pie" id="{{module.meta.code}}_pie_vis0">
                         <h3 class="pie_title"></h3>
                     </div>
-                    <div class="pie" id="{{module.code}}_pie_vis1">
+                    <div class="pie" id="{{module.meta.code}}_pie_vis1">
                         <h3 class="pie_title"></h3>
                     </div>
-                    <div class="pie" id="{{module.code}}_pie_vis2">
+                    <div class="pie" id="{{module.meta.code}}_pie_vis2">
                         <h3 class="pie_title"></h3>
                     </div>
                 </div>
             </div>
             <h2>School Average Comparison</h2>
-            <div id="{{module.code}}_comparison"></div>
+            <div id="{{module.meta.code}}_comparison"></div>
         </section>
     </div>
     {% endfor %}
@@ -77,28 +78,49 @@
     </div>
 
     <script src="evaluation_pie.js"></script>
-    <script src="lecturer_pie.js"></script>
     <script src="against_average.js"></script>
-    <script src="lecturer_against_average.js"></script>
     <script>
     (function() {
 
-        var average_data = d3.csvParse(d3.select('#data_average')
+        var subset_data = d3.csvParse(d3.select('#data_subsets')
             .html());
 
-        var module_data = d3.csvParse(d3.select('#data_agreement_overall')
+        var module_data = d3.csvParse(d3.select('#data_overall')
             .html());
+
+        console.log(subset_data);
+        console.log(module_data);
 
         var comparison_data = module_data.map(function(d, i) {
-            if (average_data[i].question === d.question) {
-                return {
-                    'question': d.question.replace(': ', ''),
-                    'module': +d.Agree,
-                    'average': +average_data[i].Agree,
-                    'diff': (+d.Agree) - (+average_data[i].Agree)
-                }
+            var average = +subset_data.filter(function(a){
+                return a.question === d.question;
+            })[0]['All Lecturers'];
+            return {
+                'question': d.question.replace(': ', ''),
+                'Agree': +d.Agree,
+                'average': average,
+                'diff': (+d.Agree) - (+average)
             }
         });
+
+        var average_data = comparison_data.map(function(d){
+            return {
+                question: d.question,
+                average: d.average
+            }
+        });
+
+        var averages = [];
+        school_average = {
+            name: 'school_average',
+            title: 'School Average',
+            data: average_data,
+            fill: '#4169e1',
+            symbol: d3.symbol()
+                .type(d3.symbolCross)
+                .size(80),
+        }
+        averages.push(school_average);
 
         var chart = againstAverage()
             .width(1100)
@@ -109,16 +131,13 @@
                 left: 60,
                 right: 200,
             })
+            .averages(averages)
+            .value_label('Average over all modules in this group');
 
         var container = d3.select("#comparison")
             .datum(comparison_data)
             .call(chart);
 
-    })();
-    (function() {
-
-        var module_data = d3.csvParse(d3.select('#data_agreement_overall')
-            .html());
         var columns = module_data.columns.splice(1);
 
         module_data.forEach(function(d, i) {
@@ -143,6 +162,66 @@
                 .html(d.question.replace(': ', ''));
 
         });
+
+        var modules = JSON.parse(d3.select('#modules').html());
+
+        modules.forEach(function(m){
+
+            var this_module_data = d3.csvParse(d3.select('#' + m + '_data')
+                .html());
+
+            this_module_data.forEach(function(d, i) {
+                var chart = evaluationPie()
+                    .width(400)
+                    .height(250)
+                    .margin({
+                        top: 20,
+                        bottom: 40,
+                        left: 120,
+                        right: 120
+                    })
+                    .i(i)
+                    .columns(columns);
+
+                var container = d3.select("#" + m + "_pie_vis" + i)
+                    .datum(d)
+                    .call(chart);
+
+                container.select('h3')
+                    .html(d.question.replace(': ', ''));
+
+            });
+            var this_comparison_data = this_module_data.map(function(d, i) {
+                var average = +subset_data.filter(function(a){
+                    return a.question === d.question;
+                })[0]['All Lecturers'];
+                return {
+                    'question': d.question.replace(': ', ''),
+                    'Agree': +d.Agree,
+                    'average': average,
+                    'diff': (+d.Agree) - (+average)
+                }
+            });
+
+            var chart = againstAverage()
+                .width(1100)
+                .height(300)
+                .margin({
+                    top: 40,
+                    bottom: 20,
+                    left: 60,
+                    right: 200,
+                })
+                .averages(averages)
+                .value_label('Module Score');
+
+            var container = d3.select("#"+ m + "_comparison")
+                .datum(comparison_data)
+                .call(chart);
+        });
+
+
+
 
     })();
     </script>
