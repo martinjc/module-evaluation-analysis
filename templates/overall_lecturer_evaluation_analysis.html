@@ -8,21 +8,23 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <div id="evaluation_data" style="display:none;">
-<div id="lecturer_average">{{data.average}}</div>
-<div id="lecturer_count">{{data.lecturer_count}}</div>
-<div id="lecturer_comparison">{{data.lecturer_comparison}}</div>
+<div id="questions">{{question_titles|tojson}}</div>
+<div id="lecturer_count">{{data.counts}}</div>
+<div id="lecturer_subsets">{{data.subsets}}</div>
+{% for question in questions %}
+<div class="lecturer_comparison" id="q_data_{{question.id}}">{{question.data}}</div>
+{% endfor %}
     </div>
 
     {% for question in questions %}
     <div class="page_a4">
         <div class="question">
             <h2>{{question.q}}</h2>
-            <div class="vis" id="{{question.id}}"></div>
+            <div class="vis" id="q_{{question.id}}"></div>
         </div>
     </div>
-
-
     {% endfor %}
 
     <div class="page_a4">
@@ -39,5 +41,94 @@
         </section>
     </div>
     <script src="overall_lecturer_analysis.js"></script>
+    <script>
+
+        var subset_data = d3.csvParse(d3.select('#lecturer_subsets').html());
+
+        var questions = JSON.parse(d3.select('#questions').html());
+        console.log(questions);
+
+        questions.forEach(function(q, i){
+            var question_data = d3.csvParseRows(d3.select('#q_data_'+ i).html(), function(d){
+                return {
+                    lecturer: d[0],
+                    value: +d[1]
+                }
+            });
+            console.log(question_data);
+
+            var average_value = subset_data.filter(function(d){
+                return d.question === q;
+            })[0]['All Lecturers'];
+            console.log(average_value);
+
+            question_data.forEach(function(d){
+                d.average = +average_value;
+                d.diff = d.value - (+average_value);
+            });
+
+            var container = d3.select('#q_' + i);
+
+            var chart = horizontalRankingChart()
+                .average_value(+average_value);
+
+            container
+                .datum(question_data)
+                .call(chart);
+        });
+
+    //     var comparison_data = average_data.map(function(d, i) {
+    //         var average = +subset_data.filter(function(a){
+    //             return a.question === d.question;
+    //         })[0]['All Lecturers'];
+    //         return {
+    //             'question': d.question.replace(': ', ''),
+    //             'Agree': +d.Agree,
+    //             'average': average,
+    //             'diff': (+d.Agree) - (+average)
+    //         }
+    //     });
+    //
+    //     var label_margin = 100;
+    //
+    // var pformat =
+    //
+    //     var questions = [
+    //         ': Was good at explaining things.',
+    //         ': Was available when needed.',
+    //         ': Made the subject interesting.'
+    //     ];
+    // }
+    // average_data.forEach(function(d) {
+    //     average[d.question] = d.value;
+    // });
+    // lecturer_data = d3.csvParse(d3.select('#lecturer_comparison')
+    //     .html());
+    // lecturer_count = d3.csvParseRows(d3.select('#lecturer_count')
+    //     .html(),
+    //     function(d) {
+    //         return {
+    //             lecturer: d[0],
+    //             count: +d[1]
+    //         };
+    //     });
+    //
+    // questions.forEach(function(q, i) {
+    //
+    //     var average_value = average[q];
+    //
+    //     var question_data = lecturer_data.map(function(d) {
+    //         return {
+    //             'lecturer': d.lecturer,
+    //             'value': +d[q],
+    //             'diff': (+d[q]) - average_value
+    //         };
+    //     });
+
+
+
+
+
+    </script>
 </body>
 </html>
