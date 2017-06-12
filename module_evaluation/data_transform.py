@@ -13,7 +13,7 @@ def convert_to_likert_and_reduce(data):
         del data['Module']
 
     data_counts = data.apply(lambda x: x.value_counts(normalize=True))
-    new_index = [LIKERT[value] for value in LIKERT.keys() if value in data_counts.index]
+    new_index = [LIKERT[value] for value in data_counts.index]
     data_counts.index = new_index
     data_counts.fillna(0, inplace=True)
     data_counts = data_counts.reset_index().replace({'index': {'Disagree Strongly':'Disagree', 'Agree Strongly': 'Agree'}}).groupby('index', sort=False).sum()
