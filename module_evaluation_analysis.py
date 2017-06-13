@@ -365,4 +365,4 @@ if __name__ == '__main__':
 
     copy_template_files()
 
-    # create_pdfs()
+    create_pdfs()
