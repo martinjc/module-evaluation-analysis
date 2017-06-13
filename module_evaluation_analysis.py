@@ -3,6 +3,7 @@ import json
 import pandas
 import shutil
 import argparse
+import subprocess
 
 from tqdm import tqdm
 from weasyprint import HTML
@@ -65,6 +66,7 @@ def construct_module_templates(dataframes, label):
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'modules', 'csv', construct_csv_filename('Module Year and Subset Comparison', label=label))) as input_file:
                 subsets = pandas.read_csv(input_file, index_col=0)
+                subsets.index.name = 'question'
 
         context = {}
         context['module'] = module
@@ -253,8 +255,16 @@ def construct_lecturer_comparison_template(dataframes, label):
     print('\n\nWriting Lecturer Comparison Template')
     lecturer_comparison = pandas.DataFrame()
     subsets = pandas.DataFrame()
+    counts = pandas.DataFrame()
+    counts.index.name = 'Lecturer'
 
     for i in tqdm(range(1)):
+        lecturers = get_lecturer_list(dataframes)
+        for lecturer in lecturers:
+            if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))):
+                with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))) as input_file:
+                    lecturer_count = pandas.read_csv(input_file, index_col=0)
+                    counts.set_value(lecturer, 'Count', int(lecturer_count.ix['All']['Count']))
 
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))) as input_file:
@@ -265,16 +275,60 @@ def construct_lecturer_comparison_template(dataframes, label):
                 subsets = pandas.read_csv(input_file, index_col=0)
 
         context = {}
+        context['year'] = label
         context['data'] = {}
-        context['data']['comparison'] = lecturer_comparison.to_csv()
+        context['data']['counts'] = counts.to_csv()
         context['data']['subsets'] = subsets.to_csv()
+        context['questions'] = []
+        context['question_titles'] = list(subsets.index)
+        for i, q in enumerate(lecturer_comparison.index):
+            data = lecturer_comparison.ix[q].T
+            data.index.name = 'lecturer'
+            data.rename(columns = ['Agree'], inplace=True)
+            context['questions'].append({'q': q, 'id': i, 'data': data.to_csv()})
 
         fpath = os.path.join(BUILD_DIR, 'Lecturer Evaluation Analysis Report - (%s).html' % (label))
 
         with open(fpath, 'w') as f:
-            html = render_template('lecturer_evaluation_comparison.html', context)
+            html = render_template('overall_lecturer_evaluation_analysis.html', context)
             f.write(html)
 
+def create_pdfs():
+    print('\n\nCreating Lecturer PDF reports')
+    lecturer_templates = [f for f in os.listdir(BUILD_DIR) if f.find('Lecturer Report') != -1]
+    for lecturer in tqdm(lecturer_templates):
+        name = lecturer[:lecturer.find('.html')]
+        template_file = "file://%s" % os.path.join(BUILD_DIR, lecturer)
+        output_file = os.path.join("output", "lecturers", "pdf", "%s.pdf" % name)
+        args = ['node', 'utils/generate_landscape_pdf.js', template_file, output_file]
+        subprocess.call(args)
+
+    print('\n\nCreating Module PDF reports')
+    module_templates = [f for f in os.listdir(BUILD_DIR) if f.find('Module Report') != -1]
+    for module in tqdm(module_templates):
+        name = module[:module.find('.html')]
+        template_file = "file://%s" % os.path.join(BUILD_DIR, module)
+        output_file = os.path.join("output", "modules", "pdf", "%s.pdf" % name)
+        args = ['node', 'utils/generate_landscape_pdf.js', template_file, output_file]
+        subprocess.call(args)
+
+    print('\n\nCreating Subset PDF reports')
+    subset_templates = [f for f in os.listdir(BUILD_DIR) if f.find('Subset Evaluation Analysis Report') != -1]
+    for subset in tqdm(subset_templates):
+        name = subset[:subset.find('.html')]
+        template_file = "file://%s" % os.path.join(BUILD_DIR, subset)
+        output_file = os.path.join("output", "subsets", "pdf", "%s.pdf" % name)
+        args = ['node', 'utils/generate_landscape_pdf.js', template_file, output_file]
+        subprocess.call(args)
+
+    print('\n\nCreating Overall Lecturer Analysis PDF reports')
+    lecturer_templates = [f for f in os.listdir(BUILD_DIR) if f.find('Lecturer Evaluation Analysis Report') != -1]
+    for lecturer in tqdm(lecturer_templates):
+        name = lecturer[:lecturer.find('.html')]
+        template_file = "file://%s" % os.path.join(BUILD_DIR, lecturer)
+        output_file = os.path.join("output", "lecturers", "pdf", "%s.pdf" % name)
+        args = ['node', 'utils/generate_landscape_pdf.js', template_file, output_file]
+        subprocess.call(args)
 
 
 def copy_template_files():
@@ -310,3 +364,5 @@ if __name__ == '__main__':
     construct_lecturer_comparison_template(dataframes, label)
 
     copy_template_files()
+
+    # create_pdfs()
