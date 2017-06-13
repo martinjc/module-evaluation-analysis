@@ -88,9 +88,6 @@
         var module_data = d3.csvParse(d3.select('#data_overall')
             .html());
 
-        console.log(subset_data);
-        console.log(module_data);
-
         var comparison_data = module_data.map(function(d, i) {
             var average = +subset_data.filter(function(a){
                 return a.question === d.question;

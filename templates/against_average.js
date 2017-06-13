@@ -63,6 +63,33 @@ function againstAverage() {
         });
     }
 
+    function relax(data) {
+        var spacing = 20;
+        var dx = 1;
+        var repeat = false;
+        data.forEach(function(dA, i) {
+            var xA = dA.labelX;
+            data.forEach(function(dB, j) {
+                var xB = dB.labelX
+                if (i === j) {
+                    return;
+                }
+                diff = xA - xB;
+                if (Math.abs(diff) > spacing) {
+                    return;
+                }
+                repeat = true;
+                magnitude = diff > 0 ? 1 : -1;
+                adjust = magnitude * dx;
+                dA.labelX = +xA + adjust;
+                dB.labelX = +xB - adjust;
+            })
+        })
+        if (repeat) {
+            relax(data);
+        }
+    }
+
     function chart(selection) {
         selection.each(function(data) {
             svg = d3.select(this)
@@ -179,7 +206,7 @@ function againstAverage() {
             averages.forEach(function(a, i) {
                 var name = a.name;
                 var title = a.title;
-                var symbol = a.symbol
+                var symbol = a.symbol;
                 var averages = svg.selectAll('.average_' + name)
                     .data(a.data)
                     .enter()
