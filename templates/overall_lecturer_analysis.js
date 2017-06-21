@@ -74,7 +74,7 @@ function horizontalRankingChart() {
                 return d.value < average_value ? d.value : d.average;
             });
 
-            xScale.domain([minimum, 1.05]);
+            xScale.domain([0, 1.05]);
 
             colourScale.domain([d3.min(data, function(d) {
                 return d.diff;
