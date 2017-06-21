@@ -135,6 +135,10 @@ def construct_lecturer_templates(dataframes, label):
             with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))) as input_file:
                 counts = pandas.read_csv(input_file, index_col=0)
 
+        if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))):
+            with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))) as input_file:
+                lecturer_comparison = pandas.read_csv(input_file, index_col=0)
+
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Year and Subset Comparison', label=label))) as input_file:
                 subsets = pandas.read_csv(input_file, index_col=0)
@@ -142,8 +146,18 @@ def construct_lecturer_templates(dataframes, label):
         context['total'] = float(counts.ix['All'])
         context['data']['overall'] = overall.to_csv()
         context['data']['counts'] = counts.to_csv()
+        context['question_titles'] = list(subsets.index)
         all_subsets = set()
         all_subsets.add('All Lecturers')
+
+        context['comparisons'] = []
+        for j, q in enumerate(lecturer_comparison.index):
+            data = lecturer_comparison.ix[q].T
+            data.index.name = 'lecturer'
+            new_index = [lecturer if l == lecturer else 'Lecturer X' for l in data.index]
+            data.index = new_index
+            data.rename(columns = ['Agree'], inplace=True)
+            context['comparisons'].append({'q': q, 'id': j, 'data': data.to_csv()})
 
         context['data']['modules'] = []
         for module in modules:

@@ -12,10 +12,14 @@
     <div id="evaluation_data" style="display:none;">
 <div id="data_subsets">{{data.subsets}}</div>
 <div id="data_overall">{{data.overall}}</div>
+<div id="questions">{{question_titles|tojson}}</div>
 <div id="modules">{{modules|tojson}}</div>
 {% for module in data.modules %}
 <div class="data_module" id="{{module.meta.code}}_data">{{module.data}}</div>
 <div class="meta_module" id="{{module.meta.code}}_meta">{{module.meta_json}}</div>
+{% endfor %}
+{% for question in comparisons %}
+<div class="lecturer_comparison" id="q_data_{{question.id}}">{{question.data}}</div>
 {% endfor %}
     </div>
 
@@ -39,6 +43,15 @@
             <div id="comparison"></div>
         </section>
     </div>
+
+    {% for question in comparisons %}
+    <div class="page_a4">
+        <div class="question">
+            <h2>{{question.q}}</h2>
+            <div class="vis" id="q_{{question.id}}"></div>
+        </div>
+    </div>
+    {% endfor %}
 
     {% for module in data.modules %}
     <div class="page_a4">
@@ -79,6 +92,7 @@
 
     <script src="evaluation_pie.js"></script>
     <script src="against_average.js"></script>
+    <script src="overall_lecturer_analysis.js"></script>
     <script>
     (function() {
 
@@ -217,7 +231,35 @@
                 .call(chart);
         });
 
+        var questions = JSON.parse(d3.select('#questions').html());
 
+        questions.forEach(function(q, i){
+            var question_data = d3.csvParseRows(d3.select('#q_data_'+ i).html(), function(d){
+                return {
+                    lecturer: d[0],
+                    value: +d[1]
+                }
+            });
+
+            var average_value = subset_data.filter(function(d){
+                return d.question === q;
+            })[0]['All Lecturers'];
+
+            question_data.forEach(function(d){
+                d.average = +average_value;
+                d.diff = d.value - (+average_value);
+            });
+
+            var container = d3.select('#q_' + i);
+
+            var chart = horizontalRankingChart()
+                .height(400)
+                .average_value(+average_value);
+
+            container
+                .datum(question_data)
+                .call(chart);
+        });
 
 
     })();
