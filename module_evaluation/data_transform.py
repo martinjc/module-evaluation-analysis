@@ -1,5 +1,6 @@
 import os
 import pandas
+import numpy as np
 
 from module_evaluation.config import LIKERT, EXCLUDE_COLUMNS, COLUMN_MAPPINGS
 
@@ -11,7 +12,7 @@ def convert_to_likert_and_reduce(data):
     # don't need 'Module' column
     if 'Module' in data.columns:
         del data['Module']
-
+    data.replace(0, np.nan, inplace=True)
     data_counts = data.apply(lambda x: x.value_counts(normalize=True))
     data_counts.rename(index=LIKERT, inplace=True)
     data_counts.fillna(0, inplace=True)
