@@ -129,7 +129,7 @@ def construct_lecturer_templates(dataframes, label):
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, label=label))) as input_file:
                 overall = pandas.read_csv(input_file, index_col=0)
-                overall.sort_values('Agree', inplace=True, ascending=False)
+                overall.sort_index(inplace=True, ascending=False)
 
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))) as input_file:
@@ -154,7 +154,7 @@ def construct_lecturer_templates(dataframes, label):
         for j, q in enumerate(lecturer_comparison.index):
             data = lecturer_comparison.ix[q].T
             data.index.name = 'lecturer'
-            new_index = [lecturer if l == lecturer else 'Lecturer X' for l in data.index]
+            new_index = [lecturer if l == lecturer else '...' for l in data.index]
             data.index = new_index
             data.rename(columns = ['Agree'], inplace=True)
             context['comparisons'].append({'q': q, 'id': j, 'data': data.to_csv()})
@@ -171,7 +171,7 @@ def construct_lecturer_templates(dataframes, label):
                 with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, module, label=label))) as input_file:
                     df = pandas.read_csv(input_file, index_col=0)
                     if 'Agree' in df.columns:
-                        df.sort_values('Agree', inplace=True, ascending=False)
+                        df.sort_index(inplace=True, ascending=False)
 
                     module_data = {}
                     module_data['meta'] = {}
@@ -278,7 +278,7 @@ def construct_lecturer_comparison_template(dataframes, label):
             if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))):
                 with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('%s Counts' % lecturer, label=label))) as input_file:
                     lecturer_count = pandas.read_csv(input_file, index_col=0)
-                    counts.set_value(lecturer, 'Count', int(lecturer_count.ix['All']['Count']))
+                    counts.at[lecturer, 'Count'] = int(lecturer_count.ix['All']['Count'])
 
         if os.path.exists(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))):
             with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename('Lecturer Comparison', label=label))) as input_file:
@@ -371,12 +371,12 @@ if __name__ == '__main__':
     extract_and_write_module_data(dataframes, label)
     extract_and_write_lecturer_data(dataframes, label)
     extract_and_write_year_and_subset_data(dataframes, label)
-
+    #
     construct_lecturer_templates(dataframes, label)
     construct_module_templates(dataframes, label)
     construct_subset_comparison_templates(dataframes, label)
     construct_lecturer_comparison_template(dataframes, label)
-
+    #
     copy_template_files()
-
+    #
     create_pdfs()
