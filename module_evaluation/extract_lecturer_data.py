@@ -117,7 +117,7 @@ def extract_and_write_lecturer_data(dataframes, label):
         lecturer_data = extract_lecturer_data(dataframes, lecturer)
         lecturer_data_reduced = transform_for_output(lecturer_data, 'question')
 
-        lecturer_count.set_value('All', 'Count', len(lecturer_data.index))
+        lecturer_count.at['All', 'Count'] = len(lecturer_data.index)
 
         if not lecturer_data_reduced.empty:
             if 'Agree' in lecturer_data_reduced.columns:
@@ -130,7 +130,7 @@ def extract_and_write_lecturer_data(dataframes, label):
             lecturer_module_data = extract_lecturer_data_for_module(dataframes, lecturer, module)
             lecturer_module_data_reduced = transform_for_output(lecturer_module_data, 'question')
 
-            lecturer_count.set_value(module, 'Count', len(lecturer_module_data.index))
+            lecturer_count.at[module, 'Count'] = len(lecturer_module_data.index)
 
             if not lecturer_module_data_reduced.empty:
                 with open(os.path.join(OUTPUT_DIRECTORY, 'lecturers', 'csv', construct_csv_filename(lecturer, module, label=label)), 'w') as output_file:
