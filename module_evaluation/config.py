@@ -11,7 +11,8 @@ EXCLUDE_COLUMNS = [
     'What proportion of the timetabled activities have you attended?',
     'On average, how many hours have you spent per week on this module, outside of the timetabled activities?',
     'What did you particularly like about the module?',
-    'What would you like to see changed?'
+    'What would you like to see changed?',
+    'If your mid-module feedback identified an improvement to make, has this been done and how has it improved the module?'
 ]
 
 # Mapping from numbers to human-readable strings
@@ -27,7 +28,7 @@ LIKERT = {
 
 # Collections of modules that may need to be analysed together
 # Add or remove from here as you please
-YEAR1 = ['CM1101', 'CM1102', 'CM1103', 'CM1104', 'CM1201', 'CM1202', 'CM1204', 'CM1205', 'CM1206', 'CM1208', 'CM1209']
+YEAR1 = ['CM1101', 'CM1102', 'CM1103', 'CM1104', 'CM1201', 'CM1202', 'CM1204', 'CM1205', 'CM1206', 'CM1208', 'CM1209', 'CM1210']
 YEAR2 = ['CM2101', 'CM2102', 'CM2103', 'CM2104', 'CM2105', 'CM2201', 'CM2203', 'CM2205', 'CM2206', 'CM2207', 'CM2208', 'CM2302', 'CM2303', 'CM2305', 'CM2500']
 YEAR3 = ['CM3101', 'CM3103', 'CM3104', 'CM3105', 'CM3106', 'CM3107', 'CM3109', 'CM3110', 'CM3111', 'CM3112', 'CM3113', 'CM3114', 'CM3201', 'CM3202', 'CM3203', 'CM3301', 'CM3302', 'CM3303', 'CM3304']
 MSC = ['CMT102', 'CMT103', 'CMT104', 'CMT105', 'CMT106', 'CMT107', 'CMT108', 'CMT111', 'CMT112', 'CMT202', 'CMT205', 'CMT206', 'CMT207', 'CMT209', 'CMT212', 'CMT213', 'CMT301', 'CMT302', 'CMT303', 'CMT304', 'CMT305', 'CMT306', 'CMT400']
