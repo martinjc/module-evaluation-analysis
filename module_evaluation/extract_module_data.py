@@ -36,7 +36,7 @@ def combine_module_evaluation_data(dataframes):
         non_lecturer_columns = [c for c in df.columns if c.find(':') == -1]
         ad_f = df[non_lecturer_columns].dropna()
         all_module_data_frames.append(ad_f)
-    all_module_data = pandas.concat(all_module_data_frames)
+    all_module_data = pandas.concat(all_module_data_frames, sort=False)
     return all_module_data
 
 
@@ -45,7 +45,7 @@ def get_module_data_with_lecturer_data(dataframes, modules):
     all_module_data_frames = []
     for df in dataframes:
         all_module_data_frames.append(df.loc[df['Module'].isin(modules)])
-    all_module_data = pandas.concat(all_module_data_frames)
+    all_module_data = pandas.concat(all_module_data_frames, sort=False)
     return all_module_data
 
 
@@ -59,7 +59,7 @@ def get_module_data(dataframes, modules):
         ad_f = df[non_lecturer_columns].dropna()
         all_module_data_frames.append(ad_f.loc[ad_f['Module'].isin(modules)])
 
-    all_module_data = pandas.concat(all_module_data_frames)
+    all_module_data = pandas.concat(all_module_data_frames, sort=False)
     all_module_data.dropna(axis=1, inplace=True)
     return all_module_data
 
@@ -82,11 +82,11 @@ def extract_and_write_module_data(dataframes, label):
     print('\n\nwriting data for modules')
     # reduce the data for each module and write out
     for module in tqdm(modules):
-
         module_data = get_module_data(dataframes, [module])
+
         module_data_reduced = transform_for_output(module_data, 'question')
 
-        module_counts.set_value(module, 'Count', len(module_data.index))
+        module_counts.at[module, 'Count'] = len(module_data.index)
 
         if not module_data_reduced.empty:
             if 'Agree' in module_data_reduced.columns:
